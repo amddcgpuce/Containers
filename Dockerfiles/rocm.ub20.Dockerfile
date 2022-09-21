@@ -8,6 +8,7 @@
 
 FROM ubuntu:20.04
 
+# BUILD ARGS specified using --build-arg rocm_repo=5.2.3 --build-arg rocm_version=5.2.3 --build-arg rocm_lib_version=50203 --build-arg rocm_path=/opt/rocm-5.2.3 --build-arg rocblas_ver=5.2
 # BUILD ARGs specified using --build-arg rocm_repo=5.2 --build-arg rocm_version=5.2 --build-arg rocm_lib_version=50200 --build-arg rocm_path=/opt/rocm-5.2.0 --build-arg rocblas_ver=5.2
 # BUILD ARGs specified using --build-arg rocm_repo=5.1.3 --build-arg rocm_version=5.1.3 --build-arg rocm_lib_version=50103 --build-arg rocm_path=/opt/rocm-5.1.3 --build-arg rocblas_ver=5.1
 
