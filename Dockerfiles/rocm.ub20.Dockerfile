@@ -2,12 +2,16 @@
 # Copyright (c) 2022 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
 # Edited By: sid.srinivasan@amd.com
-# Revision: V1.1
+# Revision: V1.2
+# V1.2 use rocblas tag 5.3.0
 # V1.1 added rocm_version build arg
 # V1.0 initial version
 
 FROM ubuntu:20.04
 
+# 5.3
+# BUILD ARGS specified using --build-arg rocm_repo=5.3 --build-arg rocm_version=5.3.0 --build-arg rocm_lib_version=50300 --build-arg rocm_path=/opt/rocm-5.3.0 --build-arg rocblas_ver=5.3.0
+#
 # BUILD ARGS specified using --build-arg rocm_repo=5.2.3 --build-arg rocm_version=5.2.3 --build-arg rocm_lib_version=50203 --build-arg rocm_path=/opt/rocm-5.2.3 --build-arg rocblas_ver=5.2
 # BUILD ARGs specified using --build-arg rocm_repo=5.2 --build-arg rocm_version=5.2 --build-arg rocm_lib_version=50200 --build-arg rocm_path=/opt/rocm-5.2.0 --build-arg rocblas_ver=5.2
 # BUILD ARGs specified using --build-arg rocm_repo=5.1.3 --build-arg rocm_version=5.1.3 --build-arg rocm_lib_version=50103 --build-arg rocm_path=/opt/rocm-5.1.3 --build-arg rocblas_ver=5.1
@@ -114,7 +118,7 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     cd $HOME && \
     git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocBLAS && \
     cd rocBLAS && \
-    git checkout --recurse-submodules origin/release/rocm-rel-${rocblas_ver} && \
+    git checkout --recurse-submodules tags/rocm-${rocblas_ver} && \
     ./install.sh -cd && \
     cd build/release && \
     make package/fast && \
