@@ -8,7 +8,8 @@
 # V1.0 initial version
 
 FROM ubuntu:20.04
-
+#5.3.3
+# BUILD ARGS specified using --build-arg rocm_repo=5.3.3 --build-arg rocm_version=5.3.3 --build-arg rocm_lib_version=50303 --build-arg rocm_path=/opt/rocm-5.3.3 --build-arg rocblas_ver=5.3.3
 # 5.3
 # BUILD ARGS specified using --build-arg rocm_repo=5.3 --build-arg rocm_version=5.3.0 --build-arg rocm_lib_version=50300 --build-arg rocm_path=/opt/rocm-5.3.0 --build-arg rocblas_ver=5.3.0
 #
@@ -129,7 +130,17 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
     cd $HOME && \
     rm -rf rocBLAS && \
+    cd $HOME && \
+    git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocPRIM.git && \
+    cd rocPRIM && \
+    git checkout --recurse-submodules tags/rocm-${rocblas_ver} && \
+    mkdir build && \
+    cd build && \
+    CXX=hipcc cmake -DBUILD_BENCHMARK=ON ../. && \
+    make && \
+    make install && \
     cd $HOME
+   
 
 
 
