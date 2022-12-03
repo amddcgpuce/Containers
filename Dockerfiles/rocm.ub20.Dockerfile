@@ -2,7 +2,8 @@
 # Copyright (c) 2022 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
 # Edited By: sid.srinivasan@amd.com
-# Revision: V1.2
+# Revision: V1.3
+# V1.3 use rocm 5.4.0
 # V1.2 use rocblas tag 5.3.0
 # V1.1 added rocm_version build arg
 # V1.0 initial version
@@ -136,10 +137,10 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     git checkout --recurse-submodules tags/rocm-${rocblas_ver} && \
     mkdir build && \
     cd build && \
-    CXX=hipcc cmake -DBUILD_BENCHMARK=ON ../. && \
+    CXX=hipcc cmake -DBUILD_BENCHMARK=ON -DBUILD_TEST=ON -DBUILD_EXAMPLE=ON -DBENCHMARK_CONFIG_TUNING=ON -DAMDGPU_TEST_TARGETS="gfx90a;gfx908;gfx906" ../. && \
     make && \
     make install && \
-    cd $HOME
+    cd $HOME 
    
 
 
