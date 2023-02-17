@@ -33,7 +33,8 @@ ARG rocblas_ver
 
 RUN echo "Build docker for ROCM VERSION $rocm_version"
 
-RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list && \
+#RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list && \
+RUN apt clean && \
     apt-get clean && \
     apt-get -y update --fix-missing --allow-insecure-repositories && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -49,6 +50,8 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     dos2unix \
     doxygen \
     flex \
+    gcc-10 \
+    gfortran-10 \
     g++-multilib \
     gcc-multilib \
     git \
@@ -73,6 +76,7 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     libpython3.8 \
     libfile-which-perl \
     libprotobuf-dev \
+    libstdc++-10-dev \
     libsnappy-dev \
     libssl-dev \
     libunwind-dev \
@@ -131,15 +135,6 @@ RUN sed -i -e "s/\/archive.ubuntu/\/us.archive.ubuntu/" /etc/apt/sources.list &&
     /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
     cd $HOME && \
     rm -rf rocBLAS && \
-    cd $HOME && \
-    git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocPRIM.git && \
-    cd rocPRIM && \
-    git checkout --recurse-submodules tags/rocm-${rocblas_ver} && \
-    mkdir build && \
-    cd build && \
-    CXX=hipcc cmake -DBUILD_BENCHMARK=ON -DBUILD_TEST=ON -DBUILD_EXAMPLE=ON -DBENCHMARK_CONFIG_TUNING=ON -DAMDGPU_TEST_TARGETS="gfx90a;gfx908;gfx906" ../. && \
-    make && \
-    make install && \
     cd $HOME 
    
 
@@ -152,7 +147,7 @@ RUN /bin/sh -c 'ln -sf ${ROCM_PATH} /opt/rocm'
 RUN locale-gen en_US.UTF-8
 
 # Set up paths
-ENV PATH="/opt/${ROCM_PATH}/bin:/opt/${ROCM_PATH}/opencl/bin:${PATH}"
+ENV PATH="${ROCM_PATH}/bin:${ROCM_PATH}/llvm/bin:${ROCM_PATH}/opencl/bin:${PATH}"
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
