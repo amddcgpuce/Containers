@@ -7,9 +7,6 @@
 # For 5.6.0-rc1 use branch develop for rocblas
 
 FROM ubuntu:22.04
-MAINTAINER Sid.srinivasan@amd.com 
-#5.5.1
-#sudo docker build --no-cache --build-arg rocm_repo=5.5.1 --build-arg rocm_version=5.5.1 --build-arg rocm_lib_version=50501 --build-arg rocm_path=/opt/rocm-5.5.1 --build-arg rocblas_ver=5.5.1 -t amddcgpuce/rocm:5.5.1-ub22 -f rocm.ub22.Dockerfile `pwd`
 # 5.5 docker build, rocblas_ver is 5.5 to checkout branch, not tag. If using tag, use rocblas_ver=5.5.0 and update git checkout
 #sudo docker build --no-cache --build-arg rocm_repo=5.5 --build-arg rocm_version=5.5.0 --build-arg rocm_lib_version=50500 --build-arg rocm_path=/opt/rocm-5.5.0 --build-arg rocblas_ver=5.5 -t amddcgpuce/rocm:5.5.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 #5.4.3 docker build for ubuntu 20 based
@@ -108,7 +105,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
-    python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels && \
+    python3 ./rocminstall.py --nokernel --baseurl https://repo.radeon.com/rocm/apt/.apt_5.6/ --rev 5.6 --nomiopenkernels && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
@@ -126,19 +123,6 @@ RUN apt clean && \
     apt-get update && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt install -y python3.8 libpython3.8-dev && \
-    git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocBLAS && \
-    cd rocBLAS && \
-    git checkout tags/rocm-${rocblas_ver} && \
-    ./install.sh -cd && \
-    cd build/release && \
-    make package/fast && \
-    cd $HOME/rocBLAS && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-clients_*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-clients-common_*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-benchmarks*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
-    cd $HOME && \
-    rm -rf rocBLAS && \
     cd $HOME
 
 
