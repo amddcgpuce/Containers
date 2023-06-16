@@ -92,6 +92,7 @@ RUN apt clean && \
     ssh \
     swig \
     sudo \
+    texinfo \
     unzip \
     vim \
     xsltproc && \

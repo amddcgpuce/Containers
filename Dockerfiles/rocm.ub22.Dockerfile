@@ -50,6 +50,7 @@ RUN apt clean && \
     dos2unix \
     doxygen \
     flex \
+    texinfo \
     gcc-11 \
     gfortran-11 \
     gcc-12 \
@@ -139,7 +140,10 @@ RUN apt clean && \
     /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
     cd $HOME && \
     rm -rf rocBLAS && \
-    cd $HOME
+    cd $HOME && \
+    rm -rf /tmp/* && \
+    rm -rf $HOME/.cache 
+
 
 
 #
