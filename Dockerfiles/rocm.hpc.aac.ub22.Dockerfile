@@ -2,13 +2,19 @@
 # Copyright (c) 2023 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
 # Edited By: sid.srinivasan@amd.com
-# Revision: V1.0
+# Revision: V1.1
 # V1.0 initial version
+# V1.1 ROCm 5.6
 
-FROM amddcgpuce/rocm:5.4.3-ub22
-MAINTAINER sid.srinivasan@amd.com
-
+# 5.4.3
 #sudo docker build --no-cache --build-arg ucx_version=v1.13.1 --build-arg ompi_version=v4.1.4 -t amddcgpuce/rocm-aac-hpc:5.4.3_ucx1.13.1_ompi4.1.4 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
+# 5.6.0
+# sudo docker build --no-cache --build-arg rocm_version=5.6.0 --build-arg ucx_version=v1.14.1 --build-arg ompi_version=v4.1.5 -t amddcgpuce/rocm-aac-hpc:5.6.0_ucx1.14.1_ompi4.1.5 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
+
+ARG rocm_version
+
+FROM amddcgpuce/rocm:${rocm_version}-ub22
+MAINTAINER sid.srinivasan@amd.com
 
 ARG ucx_version
 ENV UCX_HOME=/opt/ucx
@@ -24,11 +30,19 @@ RUN apt clean && \
     cd $HOME && \
     git clone --recursive https://github.com/openpmix/openpmix && \
     cd openpmix && \
-    git checkout tags/v4.2.1 && \
+    git checkout tags/v4.2.4 && \
     ./autogen.pl && \
     ./configure  && \
     make && \
     sudo make install && \
+    cd $HOME && \
+    git clone --recursive https://github.com/openpmix/prrte && \
+    cd prrte/ && \
+    git checkout tags/v3.0.0 && \
+    ./autogen.pl && \
+    ./configure --with-pmix=/usr/local --with-pmix-libdir=/usr/local/lib && \
+    make && \
+    sudo make install && \        
     cd $HOME && \
     git clone https://github.com/openucx/ucx.git  && \
     cd ucx/ && \
@@ -66,6 +80,7 @@ RUN apt clean && \
     rm -rf ucx && \
     rm -rf ompi && \
     rm -rf openpmix && \
+    rm -rf prrte && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache && \
     cd $HOME

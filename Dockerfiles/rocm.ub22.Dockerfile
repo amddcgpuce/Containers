@@ -6,6 +6,7 @@
 # V1.0 initial version
 # V1.1 6/29/2023 ROCm 5.6 Version
 # For 5.6.0 use branch develop for rocblas
+# V1.2 8/15/2023 ROCm 5.7 Version
 
 FROM ubuntu:22.04
 MAINTAINER Sid.srinivasan@amd.com 
@@ -17,6 +18,8 @@ MAINTAINER Sid.srinivasan@amd.com
 #sudo docker build --no-cache --build-arg rocm_repo=5.4.3 --build-arg rocm_version=5.4.3 --build-arg rocm_lib_version=50403 --build-arg rocm_path=/opt/rocm-5.4.3 --build-arg rocblas_ver=5.4.3 -t srinivamd/rocm:5.4.3-ub20 -f rocm.ub20.Dockerfile `pwd`
 # 5.6 
 #sudo docker build --no-cache --build-arg rocm_repo=5.6 --build-arg rocm_version=5.6.0 --build-arg rocm_lib_version=50600 --build-arg rocm_path=/opt/rocm-5.6.0 --build-arg rocblas_ver=5.6.0 -t amddcgpuce/rocm:5.6.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+#5.7
+# sudo docker build --no-cache --build-arg rocm_repo=5.7 --build-arg rocm_version=5.7.0 --build-arg rocm_lib_version=50700 --build-arg rocm_path=/opt/rocm-5.7.0 --build-arg rocblas_ver=5.7.0 -t amddcgpuce/rocm:5.7.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 
 ARG rocm_repo
 ENV ROCM_REPO=${rocm_repo}
@@ -110,7 +113,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
-    python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels && \
+    python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --baseurl https://repo.radeon.com/rocm/apt/.apt_5.7/ --nomiopenkernels && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
@@ -130,7 +133,7 @@ RUN apt clean && \
     apt install -y python3.8 libpython3.8-dev && \
     git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocBLAS && \
     cd rocBLAS && \
-    git checkout tags/rocm-${rocblas_ver} && \
+    git checkout release/rocm-rel-${rocblas_ver} && \
     ./install.sh -cd && \
     cd build/release && \
     make package/fast && \
