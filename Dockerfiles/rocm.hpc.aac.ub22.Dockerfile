@@ -10,6 +10,8 @@
 #sudo docker build --no-cache --build-arg ucx_version=v1.13.1 --build-arg ompi_version=v4.1.4 -t amddcgpuce/rocm-aac-hpc:5.4.3_ucx1.13.1_ompi4.1.4 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
 # 5.6.0
 # sudo docker build --no-cache --build-arg rocm_version=5.6.0 --build-arg ucx_version=v1.14.1 --build-arg ompi_version=v4.1.5 -t amddcgpuce/rocm-aac-hpc:5.6.0_ucx1.14.1_ompi4.1.5 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
+# 5.6.1
+# sudo docker build --no-cache --build-arg rocm_version=5.6.1 --build-arg ucx_version=v1.14.1 --build-arg ompi_version=v4.1.5 -t amddcgpuce/rocm-aac-hpc:5.6.1_ucx1.14.1_ompi4.1.5 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
 
 ARG rocm_version
 
@@ -30,7 +32,7 @@ RUN apt clean && \
     cd $HOME && \
     git clone --recursive https://github.com/openpmix/openpmix && \
     cd openpmix && \
-    git checkout tags/v4.2.4 && \
+    git checkout tags/v4.2.1 && \
     ./autogen.pl && \
     ./configure  && \
     make && \
@@ -38,7 +40,7 @@ RUN apt clean && \
     cd $HOME && \
     git clone --recursive https://github.com/openpmix/prrte && \
     cd prrte/ && \
-    git checkout tags/v3.0.0 && \
+    git checkout tags/v2.0.2 && \
     ./autogen.pl && \
     ./configure --with-pmix=/usr/local --with-pmix-libdir=/usr/local/lib && \
     make && \
