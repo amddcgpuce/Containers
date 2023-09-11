@@ -8,9 +8,8 @@
 # For 5.6.0 use branch develop for rocblas
 # V1.2 8/15/2023 ROCm 5.7 Version
 
-ARG ubuntu_ver
 
-FROM ubuntu:${ubuntu_ver}
+FROM ubuntu:22.04
 MAINTAINER Sid.srinivasan@amd.com 
 #5.5.1
 #sudo docker build --no-cache --build-arg rocm_repo=5.5.1 --build-arg rocm_version=5.5.1 --build-arg rocm_lib_version=50501 --build-arg rocm_path=/opt/rocm-5.5.1 --build-arg rocblas_ver=5.5.1 -t amddcgpuce/rocm:5.5.1-ub22 -f rocm.ub22.Dockerfile `pwd`
@@ -19,7 +18,10 @@ MAINTAINER Sid.srinivasan@amd.com
 #5.4.3 docker build for ubuntu 20 based
 #sudo docker build --no-cache --build-arg rocm_repo=5.4.3 --build-arg rocm_version=5.4.3 --build-arg rocm_lib_version=50403 --build-arg rocm_path=/opt/rocm-5.4.3 --build-arg rocblas_ver=5.4.3 -t srinivamd/rocm:5.4.3-ub20 -f rocm.ub20.Dockerfile `pwd`
 # 5.6 
-#sudo docker build --no-cache --build-arg ubuntu_ver=22.04 --build-arg rocm_repo=5.6 --build-arg rocm_version=5.6.0 --build-arg rocm_lib_version=50600 --build-arg rocm_path=/opt/rocm-5.6.0 --build-arg rocblas_ver=5.6.0 -t amddcgpuce/rocm:5.6.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+#sudo docker build --no-cache --build-arg rocm_repo=5.6 --build-arg rocm_version=5.6.0 --build-arg rocm_lib_version=50600 --build-arg rocm_path=/opt/rocm-5.6.0 --build-arg rocblas_ver=5.6.0 -t amddcgpuce/rocm:5.6.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+# 5.6.1
+# sudo docker build --no-cache --build-arg rocm_repo=5.6.1 --build-arg rocm_version=5.6.1 --build-arg rocm_lib_version=506001 --build-arg rocm_path=/opt/rocm-5.6.1 --build-arg rocblas_ver=5.6 -t amddcgpuce/rocm:5.6.1-ub22 -f rocm.ub22.Dockerfile `pwd`
+
 #5.7
 # sudo docker build --no-cache --build-arg rocm_repo=5.7 --build-arg rocm_version=5.7.0 --build-arg rocm_lib_version=50700 --build-arg rocm_path=/opt/rocm-5.7.0 --build-arg rocblas_ver=5.7.0 -t amddcgpuce/rocm:5.7.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 
