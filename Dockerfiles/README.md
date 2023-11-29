@@ -9,7 +9,9 @@ sudo docker build --no-cache --build-arg rocm_repo=5.7.1 --build-arg rocm_versio
 sudo docker build --no-cache --build-arg rocm_version=5.7.1 --build-arg ucx_version=v1.15.0 --build-arg ompi_version=v4.1.6 -t amddcgpuce/rocm-aac-hpc:5.7.1_ucx1.15.0_ompi4.1.6 -f rocm.hpc.aac.ub22.Dockerfile `pwd`
 ```
 
-## For Gromacs gromacs:5.7.1_ucx1.15.0_ompi4.1.6 Docker
+## For Gromacs gromacs:5.7.1_ucx1.15.0_ompi4.1.6 docker
 ```
-podman build --no-cache -t amddcgpuce/gromacs:5.7.1_ucx1.15.0_ompi4.1.6 -f gromacs.Dockerfile `pwd`
+sudo docker build --no-cache -t amddcgpuce/gromacs:5.7.1_ucx1.15.0_ompi4.1.6 -f gromacs.Dockerfile `pwd`
 ```
+
+### NOTE: To build using podman, replace ``sudo docker`` with ``podman``
