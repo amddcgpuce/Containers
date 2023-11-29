@@ -29,7 +29,7 @@ ARG rocm_repo
 ENV ROCM_REPO=${rocm_repo}
 ARG rocm_path
 ENV ROCM_PATH=${rocm_path}
-ENV HIP_PATH=${rocm_path}/hip
+ENV HIP_PATH=${rocm_path}
 # need to fix hardcoded
 # ENV ROCM_LIBPATCH_VERSION=50100
 ARG rocm_lib_version
