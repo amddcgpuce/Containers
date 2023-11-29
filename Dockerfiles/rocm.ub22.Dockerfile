@@ -24,6 +24,9 @@ MAINTAINER Sid.srinivasan@amd.com
 
 #5.7
 # sudo docker build --no-cache --build-arg rocm_repo=5.7 --build-arg rocm_version=5.7.0 --build-arg rocm_lib_version=50700 --build-arg rocm_path=/opt/rocm-5.7.0 --build-arg rocblas_ver=5.7.0 -t amddcgpuce/rocm:5.7.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+#5.7.1 
+# sudo docker build --no-cache --build-arg rocm_repo=5.7.1 --build-arg rocm_version=5.7.1 --build-arg rocm_lib_version=507001 --build-arg rocm_path=/opt/rocm-5.7.1 --build-arg rocblas_ver=5.7.1 -t amddcgpuce/rocm:5.7.1-ub22 -f rocm.ub22.Dockerfile `pwd`
+
 
 ARG rocm_repo
 ENV ROCM_REPO=${rocm_repo}
