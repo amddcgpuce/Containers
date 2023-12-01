@@ -42,7 +42,7 @@ ARG rocm_version
 ENV ROCM_VERSION=${rocm_version}
 ARG rocblas_ver
 
-#ENV HIPCC_COMPILE_FLAGS_APPEND="--offload-arch=gfx90a --offload-arch=gfx908 --offload-arch=gfx906"
+ENV HIPCC_COMPILE_FLAGS_APPEND="--offload-arch=gfx940 --offload-arch=gfx941 --offload-arch-gfx942 --offload-arch=gfx90a --offload-arch=gfx908"
 RUN echo "Build docker for ROCM VERSION $rocm_version"
 
 RUN apt clean && \
