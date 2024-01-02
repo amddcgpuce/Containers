@@ -7,6 +7,7 @@
 # V1.1 6/29/2023 ROCm 5.6 Version
 # For 5.6.0 use branch develop for rocblas
 # V1.2 8/15/2023 ROCm 5.7 Version
+# V1.3 1/2/2024 ROCm 6.0 Version
 
 
 FROM ubuntu:22.04
@@ -26,6 +27,8 @@ MAINTAINER Sid.srinivasan@amd.com
 # sudo docker build --no-cache --build-arg rocm_repo=5.7 --build-arg rocm_version=5.7.0 --build-arg rocm_lib_version=50700 --build-arg rocm_path=/opt/rocm-5.7.0 --build-arg rocblas_ver=5.7.0 -t amddcgpuce/rocm:5.7.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 #5.7.1 
 # sudo docker build --no-cache --build-arg rocm_repo=5.7.1 --build-arg rocm_version=5.7.1 --build-arg rocm_lib_version=507001 --build-arg rocm_path=/opt/rocm-5.7.1 --build-arg rocblas_ver=5.7.1 -t amddcgpuce/rocm:5.7.1-ub22 -f rocm.ub22.Dockerfile `pwd`
+#6.0
+# sudo docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 --build-arg rocblas_ver=6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 
 
 ARG rocm_repo
@@ -124,15 +127,15 @@ RUN apt clean && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.26.3/cmake-3.26.3.tar.gz && \
-    tar zxvf cmake-3.26.3.tar.gz && \
-    cd cmake-3.26.3 && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz && \
+    tar zxvf cmake-3.28.1.tar.gz && \
+    cd cmake-3.28.1 && \
     ./bootstrap && \
     make && \
     make install && \
     hash -r && \
     cd $HOME && \
-    rm -rf cmake-3.26* && \
+    rm -rf cmake-3.28* && \
     cd $HOME && \
     apt clean && \
     apt-get update && \
