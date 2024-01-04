@@ -45,7 +45,14 @@ ARG rocm_version
 ENV ROCM_VERSION=${rocm_version}
 ARG rocblas_ver
 
-ENV HIPCC_COMPILE_FLAGS_APPEND="--offload-arch=gfx940 --offload-arch=gfx941 --offload-arch-gfx942 --offload-arch=gfx90a --offload-arch=gfx908"
+ENV HIPCC_COMPILE_FLAGS_APPEND="--offload-arch=gfx940 --offload-arch=gfx941 --offload-arch=gfx942 --offload-arch=gfx90a --offload-arch=gfx908"
+
+#Lables
+LABEL "ROCm Version"=$rocm_version
+LABEL "OS"="Ubuntu 22"
+LABEL "GFX Architectures"="gfx908, gfx90a, gfx940, gfx941, gfx942"
+LABEL "description"="Base ROCm container containing rocBLAS"
+
 RUN echo "Build docker for ROCM VERSION $rocm_version"
 
 RUN apt clean && \
@@ -141,22 +148,21 @@ RUN apt clean && \
     apt-get update && \
     add-apt-repository ppa:deadsnakes/ppa && \
     apt install -y python3.8 libpython3.8-dev && \
-    git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocBLAS && \
-    cd rocBLAS && \
-    git checkout tags/rocm-${rocblas_ver} && \
-    ./install.sh -cd && \
-    cd build/release && \
-    make package/fast && \
-    cd $HOME/rocBLAS && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-clients_*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-clients-common_*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-benchmarks*.deb / && \
-    /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
+# rocBLAS build
+   # git clone --recurse-submodules https://github.com/ROCmSoftwarePlatform/rocBLAS && \
+   # cd rocBLAS && \
+   # git checkout tags/rocm-${rocblas_ver} && \
+   # ./install.sh -cd && \
+   # cd build/release && \
+   # make package/fast && \
+   # cd $HOME/rocBLAS && \
+   # /usr/bin/dpkg-deb -xv build/release/rocblas-clients_*.deb / && \
+   # /usr/bin/dpkg-deb -xv build/release/rocblas-clients-common_*.deb / && \
+   # /usr/bin/dpkg-deb -xv build/release/rocblas-benchmarks*.deb / && \
+   # /usr/bin/dpkg-deb -xv build/release/rocblas-tests*.deb / && \
     cd $HOME && \
     echo "/opt/rocm-${rocm_version}/lib" | sudo tee -a /etc/ld.so.conf.d/rocmlib.conf && \
     sudo ldconfig && \
-    cd $HOME && \
-    rm -rf rocBLAS && \
     cd $HOME && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache 
