@@ -2,7 +2,7 @@
 Team container development
 
 # Docker Files
-`rocm.ub22.Dockerfile` is used to build ROCm with `rocblas-bench`
+`rocm.ub22.Dockerfile` is used to build base ROCm Release container
 
 ### Docker build command:
 
