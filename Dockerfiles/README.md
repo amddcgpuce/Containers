@@ -1,7 +1,16 @@
-# Docker build command
-# For ROCm 5.7.1 rocm:5.7.1-ub22 docker
+# Docker build command for ROCm Base Container: `amddcgpuce/rocm`
+## Docker Build Command for ROCm 6.0.0 GA Release container: `amddcgpuce/rocm:6.0.0-ub22`
+### Dockerfile: `rocm.ub22.Dockerfile`
+The ROCm base container includes all of the version-specific packages included in ROCm release except for miopenkernel packages.
 ```
-sudo docker build --no-cache --build-arg rocm_repo=5.7.1 --build-arg rocm_version=5.7.1 --build-arg rocm_lib_version=507001 --build-arg rocm_path=/opt/rocm-5.7.1 --build-arg rocblas_ver=5.7.1 -t amddcgpuce/rocm:5.7.1-ub22 -f rocm.ub22.Dockerfile `pwd`
+docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+```
+
+## Podman Build Command for ROCm 6.0.0 GA Release container: `amddcgpuce/rocm:6.0.0-ub22`
+### Dockerfile: `rocm.ub22.Dockerfile`
+The ROCm base container includes all of the version-specific packages included in ROCm release except for miopenkernel packages.
+```
+podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 ```
 
 ## For ROCm 5.7.1 with UCX 1.15.0 and OMPI 4.1.6 rocm-aac-hpc:5.7.1_ucx1.15.0_ompi4.1.6 docker

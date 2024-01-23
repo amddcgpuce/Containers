@@ -1,18 +1,22 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: sid.srinivasan@amd.com
-# Revision: V1.3
-# V1.0 initial version
-# V1.1 6/29/2023 ROCm 5.6 Version
-# For 5.6.0 use branch develop for rocblas
-# V1.2 8/15/2023 ROCm 5.7 Version
+# Revision: V1.4
+# V1.4 Fix labels, add libyaml-cpp0.7 for rvs
 # V1.3 1/2/2024 ROCm 6.0 Version, remove rocblas
-
+# V1.2 8/15/2023 ROCm 5.7 Version
+# V1.1 6/29/2023 ROCm 5.6 Version
+# V1.0 initial version
 
 FROM ubuntu:22.04
 MAINTAINER sid.srinivasan@amd.com 
-#6.0.0
-# sudo docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+MAINTAINER srinivasan.subramanian@amd.com 
+
+# Readme:
+# Docker build command
+# docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+# Podman build command (selinux disable)
+# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 
 
 ARG rocm_repo
@@ -26,12 +30,10 @@ ARG rocm_version
 ENV ROCM_VERSION=${rocm_version}
 
 #Lables
-LABEL "rocm_version"=$rocm_version
-LABEL "os"="Ubuntu 22"
-LABEL "gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942"
-LABEL "description"="Base ROCm container"
-
-#RUN echo "Build docker for ROCM VERSION $rocm_version"
+LABEL "com.amd.container.description"="Base ROCm Release Container for Development"
+LABEL "com.amd.container.baseos.type"="Ubuntu 22"
+LABEL "com.amd.container.rocm.version"=$rocm_version
+LABEL "com.amd.container.rocm.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942"
 
 RUN apt clean && \
     apt-get clean && \
@@ -45,7 +47,6 @@ RUN apt clean && \
     cifs-utils \
     cmake \
     curl \
-    dkms \
     dos2unix \
     doxygen \
     flex \
@@ -82,6 +83,7 @@ RUN apt clean && \
     libsnappy-dev \
     libssl-dev \
     libunwind-dev \
+    libyaml-cpp0.7 \
     ocl-icd-dev \
     ocl-icd-opencl-dev \
     pkg-config \
@@ -144,6 +146,16 @@ RUN locale-gen en_US.UTF-8
 
 # Set up paths
 ENV PATH="${ROCM_PATH}/bin:${ROCM_PATH}/llvm/bin:${ROCM_PATH}/opencl/bin:${PATH}"
+ENV CMAKE_PREFIX_PATH="${ROCM_PATH}:${CMAKE_PREFIX_PATH}"
+ENV CPATH="${ROCM_PATH}/include:${ROCM_PATH}/include/hip:${ROCM_PATH}/hsa/include:${ROCM_PATH}/llvm/include:${CPATH}"
+ENV LIBRARY_PATH="${ROCM_PATH}/lib:${ROCM_PATH}/hip/lib:${ROCM_PATH}/hsa/lib:${ROCM_PATH}/lib64:${ROCM_PATH}/opencl/lib:${ROCM_PATH}/opencl/lib/x86_64:${ROCM_PATH}/llvm/lib:${LIBRARY_PATH}"
+ENV LD_RUN_PATH="${ROCM_PATH}/lib:${ROCM_PATH}/hip/lib:${ROCM_PATH}/hsa/lib:${ROCM_PATH}/lib64:${ROCM_PATH}/opencl/lib:${ROCM_PATH}/opencl/lib/x86_64:${ROCM_PATH}/llvm/lib:${LD_RUN_PATH}"
+ENV LD_LIBRARY_PATH="${ROCM_PATH}/lib:${ROCM_PATH}/hip/lib:${ROCM_PATH}/hsa/lib:${ROCM_PATH}/lib64:${ROCM_PATH}/opencl/lib:${ROCM_PATH}/opencl/lib/x86_64:${ROCM_PATH}/llvm/lib:${LD_LIBRARY_PATH}"
+ENV PKG_CONFIG_PATH="${ROCM_PATH}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+ENV MANPATH="${ROCM_PATH}/share/man:${MANPATH}"
+
+ENV ROCM_LLVM="${ROCM_PATH}/llvm"
+
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
