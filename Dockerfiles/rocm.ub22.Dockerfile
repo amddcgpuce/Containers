@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.5
+# Revision: V1.6
+# V1.6 add gawk for awk
 # V1.5 add ROCm package dependencies
 # V1.4 Fix labels, add libyaml-cpp0.7 for rvs
 # V1.3 1/2/2024 ROCm 6.0 Version, remove rocblas
@@ -83,7 +84,7 @@ RUN apt clean && \
     libstdc++-12-dev \
     libsnappy-dev \
     libssl-dev \
-    libtinfo-dev libfile-copy-recursive-perl libfile-basedir-perl libomp-dev libdrm-dev libtinfo5 libncurses5 mesa-common-dev kmod pciutils libsystemd-dev libpciaccess-dev libxml2-dev libyaml-cpp-dev \
+    gawk libtinfo-dev libfile-copy-recursive-perl libfile-basedir-perl libomp-dev libdrm-dev libtinfo5 libncurses5 mesa-common-dev kmod pciutils libsystemd-dev libpciaccess-dev libxml2-dev libyaml-cpp-dev \
     libunwind-dev \
     libyaml-cpp0.7 \
     ocl-icd-dev \
