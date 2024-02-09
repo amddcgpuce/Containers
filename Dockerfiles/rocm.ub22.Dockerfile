@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.6
+# Revision: V1.7
+# V1.7 add python3-venv
 # V1.6 add gawk for awk
 # V1.5 add ROCm package dependencies
 # V1.4 Fix labels, add libyaml-cpp0.7 for rvs
@@ -93,9 +94,8 @@ RUN apt clean && \
     protobuf-compiler \
     python3-dev \
     python3-pip \
-    python3.10-dev \
-    libpython3.10-dev \
-    python3-pip \
+    libpython3-dev \
+    python3-venv \
     software-properties-common \
     ssh \
     swig \
