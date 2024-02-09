@@ -1,7 +1,8 @@
 # ROCm Build  (internal artifactory) Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
-# Revision: V1.0
+# Revision: V1.1
+# V1.1 add gawk, python3-venv (corresponding to V1.6 rocm.ub22.Dockerfile)
 # V1.0 initial version based on rocm.ub22.Dockerfile V1.4
 
 FROM ubuntu:22.04
@@ -79,7 +80,7 @@ RUN apt clean && \
     libstdc++-12-dev \
     libsnappy-dev \
     libssl-dev \
-    libtinfo-dev libfile-copy-recursive-perl libfile-basedir-perl libomp-dev libdrm-dev libtinfo5 libncurses5 mesa-common-dev kmod pciutils libsystemd-dev libpciaccess-dev libxml2-dev libyaml-cpp-dev \
+    gawk libtinfo-dev libfile-copy-recursive-perl libfile-basedir-perl libomp-dev libdrm-dev libtinfo5 libncurses5 mesa-common-dev kmod pciutils libsystemd-dev libpciaccess-dev libxml2-dev libyaml-cpp-dev \
     libunwind-dev \
     libyaml-cpp0.7 \
     ocl-icd-dev \
@@ -88,9 +89,8 @@ RUN apt clean && \
     protobuf-compiler \
     python3-dev \
     python3-pip \
-    python3.10-dev \
-    libpython3.10-dev \
-    python3-pip \
+    libpython3-dev \
+    python3-venv \
     software-properties-common \
     ssh \
     swig \
