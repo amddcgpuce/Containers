@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.7
+# Revision: V1.8
+# V1.8 add g++-12, cmake 3.29
 # V1.7 add python3-venv
 # V1.6 add gawk for awk
 # V1.5 add ROCm package dependencies
@@ -55,8 +56,10 @@ RUN apt clean && \
     flex \
     texinfo \
     gcc-11 \
+    g++-11 \
     gfortran-11 \
     gcc-12 \
+    g++-12 \
     gfortran-12 \
     g++-multilib \
     gcc-multilib \
@@ -117,15 +120,15 @@ RUN apt clean && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz && \
-    tar zxvf cmake-3.28.1.tar.gz && \
-    cd cmake-3.28.1 && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.29.0/cmake-3.29.0.tar.gz && \
+    tar zxvf cmake-3.29.0.tar.gz && \
+    cd cmake-3.29.0 && \
     ./bootstrap && \
     make && \
     make install && \
     hash -r && \
     cd $HOME && \
-    rm -rf cmake-3.28* && \
+    rm -rf cmake-3.29* && \
     cd $HOME && \
     apt clean && \
     apt-get update && \

@@ -1,7 +1,8 @@
 # ROCm Build  (internal artifactory) Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
-# Revision: V1.1
+# Revision: V1.2
+# V1.2 add g++-12, override baseurl=default option V1.72 rocminstall script
 # V1.1 add gawk, python3-venv (corresponding to V1.6 rocm.ub22.Dockerfile)
 # V1.0 initial version based on rocm.ub22.Dockerfile V1.4
 
@@ -13,8 +14,12 @@ MAINTAINER srinivasan.subramanian@amd.com
 # Readme:
 # Docker build command for ROCm CI build for 6.0.1
 # docker build --no-cache --build-arg rocm_repo=6.0.1 --build-arg rocm_version=6.0.1 --build-arg rocm_lib_version=60001 --build-arg rocm_path=/opt/rocm-6.0.1 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=<url> -t amddcgpuce/rocm-ci:6.0.1-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
+# Docker build command for ROCm RC release (ubuntu22)
+# docker build --no-cache --build-arg rocm_repo=6.1.0 --build-arg rocm_version=6.1.0 --build-arg rocm_lib_version=60100 --build-arg rocm_path=/opt/rocm-6.1.0 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ -t amddcgpuce/rocm-ci:6.1.0-rc3-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
 # Podman build command (selinux disable)
 # podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0.1 --build-arg rocm_version=6.0.1 --build-arg rocm_lib_version=60001 --build-arg rocm_path=/opt/rocm-6.0.1 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=<url> -t amddcgpuce/rocm-ci:6.0.1-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
+# Podman build command (selinux disable) for ROCm RC release (example 6.1 RC)
+# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.1.0 --build-arg rocm_version=6.1.0 --build-arg rocm_lib_version=60100 --build-arg rocm_path=/opt/rocm-6.1.0 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ -t amddcgpuce/rocm-ci:6.1.0-rc3-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
 
 ARG rocm_repo
 ENV ROCM_REPO=${rocm_repo}
@@ -25,7 +30,8 @@ ARG rocm_lib_version
 ENV ROCM_LIBPATCH_VERSION=${rocm_lib_version}
 ARG rocm_version
 ENV ROCM_VERSION=${rocm_version}
-ARG ROCM_CI_ARTIFACTORY_BUILD_URL="https://compute-artifactory.amd.com/artifactory/list/rocm-osdb-22.04-deb/compute-rocm-rel-6.0-112/"
+#ARG ROCM_CI_ARTIFACTORY_BUILD_URL="https://compute-artifactory.amd.com/artifactory/list/rocm-osdb-22.04-deb/compute-rocm-rel-6.0-112/"
+ARG ROCM_CI_ARTIFACTORY_BUILD_URL="default"
 
 #Lables
 LABEL "com.amd.container.description"="Base ROCm Release Container for Development"
@@ -49,9 +55,8 @@ RUN apt clean && \
     doxygen \
     flex \
     texinfo \
-    gcc-11 \
-    gfortran-11 \
     gcc-12 \
+    g++-12 \
     gfortran-12 \
     g++-multilib \
     gcc-multilib \
@@ -108,19 +113,19 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
-    python3 ./rocminstall.py --nokernel  --repourl ${ROCM_CI_ARTIFACTORY_BUILD_URL} --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
+    python3 ./rocminstall.py --nokernel  --baseurl ${ROCM_CI_ARTIFACTORY_BUILD_URL} --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.28.1/cmake-3.28.1.tar.gz && \
-    tar zxvf cmake-3.28.1.tar.gz && \
-    cd cmake-3.28.1 && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.29.0/cmake-3.29.0.tar.gz && \
+    tar zxvf cmake-3.29.0.tar.gz && \
+    cd cmake-3.29.0 && \
     ./bootstrap && \
     make && \
     make install && \
     hash -r && \
     cd $HOME && \
-    rm -rf cmake-3.28* && \
+    rm -rf cmake-3.29* && \
     cd $HOME && \
     apt clean && \
     apt-get update && \
