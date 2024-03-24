@@ -1,7 +1,8 @@
-# ROCm Build  (internal artifactory) Dockerfile
+# ROCm Build  (internal artifactory and RC release) Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
-# Revision: V1.2
+# Revision: V1.3
+# V1.3 add gdb, update alternatives gcc-12 default
 # V1.2 add g++-12, override baseurl=default option V1.72 rocminstall script
 # V1.1 add gawk, python3-venv (corresponding to V1.6 rocm.ub22.Dockerfile)
 # V1.0 initial version based on rocm.ub22.Dockerfile V1.4
@@ -56,6 +57,7 @@ RUN apt clean && \
     flex \
     texinfo \
     gcc-12 \
+    gdb \
     g++-12 \
     gfortran-12 \
     g++-multilib \
@@ -139,6 +141,29 @@ RUN apt clean && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache 
 
+RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 20 && \
+    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-12 20 && \
+    update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-12 20 && \
+    update-alternatives --install /bin/cpp cpp /usr/bin/cpp-12 20 && \
+    update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-12 20 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-12 20 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-12 20 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-12 20 && \
+    update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-12 20 && \
+    update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-12 20 && \
+    update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-12 20 && \
+    update-alternatives --install /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-12 20 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-11 10 && \
+    update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-11 10 && \
+    update-alternatives --install /bin/cpp cpp /usr/bin/cpp-11 10 && \
+    update-alternatives --install /usr/bin/cpp cpp /usr/bin/cpp-11 10 && \
+    update-alternatives --install /usr/bin/gcc-ar gcc-ar /usr/bin/gcc-ar-11 10 && \
+    update-alternatives --install /usr/bin/gcc-nm gcc-nm /usr/bin/gcc-nm-11 10 && \
+    update-alternatives --install /usr/bin/gcc-ranlib gcc-ranlib /usr/bin/gcc-ranlib-11 10 && \
+    update-alternatives --install /usr/bin/gcov gcov /usr/bin/gcov-11 10 && \
+    update-alternatives --install /usr/bin/gcov-dump gcov-dump /usr/bin/gcov-dump-11 10 && \
+    update-alternatives --install /usr/bin/gcov-tool gcov-tool /usr/bin/gcov-tool-11 10 && \
+    update-alternatives --install /usr/bin/lto-dump lto-dump /usr/bin/lto-dump-11 10
 
 
 #
