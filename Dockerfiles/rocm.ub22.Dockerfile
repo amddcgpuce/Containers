@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.9
+# Revision: V1.10
+# V1.10 setup link to system libgomp.so
 # V1.9 add gdb, update-alternatives make gcc 12 default
 # V1.8 add g++-12, cmake 3.29
 # V1.7 add python3-venv
@@ -138,8 +139,9 @@ RUN apt clean && \
     apt install -y python3.8 libpython3.8-dev && \
     rm -rf /var/lib/apt/lists/* downloads && \
     cd $HOME && \
-    echo "/opt/rocm-${rocm_version}/lib" | sudo tee -a /etc/ld.so.conf.d/rocmlib.conf && \
-    sudo ldconfig && \
+    echo "/opt/rocm-${rocm_version}/lib" | tee -a /etc/ld.so.conf.d/rocmlib.conf && \
+    ln -sr /usr/lib/x86_64-linux-gnu/libgomp.so.1 /usr/lib/x86_64-linux-gnu/libgomp.so && \
+    ldconfig && \
     cd $HOME && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache 

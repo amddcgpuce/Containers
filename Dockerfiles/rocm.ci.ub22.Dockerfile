@@ -1,7 +1,8 @@
 # ROCm Build  (internal artifactory and RC release) Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
-# Revision: V1.3
+# Revision: V1.4
+# V1.4 setup link to system libgomp.so
 # V1.3 add gdb, update alternatives gcc-12 default
 # V1.2 add g++-12, override baseurl=default option V1.72 rocminstall script
 # V1.1 add gawk, python3-venv (corresponding to V1.6 rocm.ub22.Dockerfile)
@@ -135,8 +136,9 @@ RUN apt clean && \
     apt install -y python3.8 libpython3.8-dev && \
     rm -rf /var/lib/apt/lists/* downloads && \
     cd $HOME && \
-    echo "/opt/rocm-${rocm_version}/lib" | sudo tee -a /etc/ld.so.conf.d/rocmlib.conf && \
-    sudo ldconfig && \
+    echo "/opt/rocm-${rocm_version}/lib" | tee -a /etc/ld.so.conf.d/rocmlib.conf && \
+    ln -sr /usr/lib/x86_64-linux-gnu/libgomp.so.1 /usr/lib/x86_64-linux-gnu/libgomp.so && \
+    ldconfig && \
     cd $HOME && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache 
