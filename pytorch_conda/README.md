@@ -1,7 +1,7 @@
 # Podman Build Command
 # For PyTorch Version 2.0.1 with ROCm 6.0.0
 ```
-podman build --no-cache -t srinivamd/pytorch_conda:py39_pyt201_rocm600_v1 -f Dockerfile /shared/prod/home/ssubrama1/src/pytorch_docker
+podman build --no-cache -t srinivamd/pytorch_conda:py39_pyt201_rocm600_v1 -f Dockerfile `pwd`
 ```
 # Podman Run Command
 ```
