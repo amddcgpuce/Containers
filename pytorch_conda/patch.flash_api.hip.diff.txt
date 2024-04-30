@@ -1,0 +1,48 @@
+diff --git a/aten/src/ATen/native/transformers/hip/flash_attn/flash_api.hip b/aten/src/ATen/native/transformers/hip/flash_attn/flash_api.hip
+index e110e4ae1c6..02a65a031a1 100644
+--- a/aten/src/ATen/native/transformers/hip/flash_attn/flash_api.hip
++++ b/aten/src/ATen/native/transformers/hip/flash_attn/flash_api.hip
+@@ -286,6 +286,7 @@ mha_fwd(const at::Tensor &q,         // batch_size x seqlen_q x num_heads x head
+   at::Tensor q_t = q_padded.permute({0,2,1,3});
+   at::Tensor k_t = k_padded.permute({0,2,1,3});
+   at::Tensor v_t = v_padded.permute({0,2,1,3});
++  at::Tensor b_t = q_padded.permute({0,2,1,3}); // XXX: ssubrama1 if_empty_then_like q
+   at::Tensor output_t = out.permute({0,2,1,3});
+ 
+   at::Tensor M = at::empty({batch_size * num_heads, seqlen_q}, at::dtype(at::kFloat).device(q.device())); // aka softmax_lse
+@@ -303,6 +304,7 @@ mha_fwd(const at::Tensor &q,         // batch_size x seqlen_q x num_heads x head
+   err = attn_fwd(mk_aotensor(q_t, "q"),
+                  mk_aotensor(k_t, "k"),
+                  mk_aotensor(v_t, "v"),
++                 mk_aotensor(b_t, "b"), // XXX: ssubrama1, if empty then like q
+                  softmax_scale,
+                  mk_aotensor<2>(M, "M"),
+                  mk_aotensor(output_t, "Out"),
+@@ -482,10 +484,12 @@ mha_bwd(const at::Tensor &dout,  // batch_size x seqlen_q x num_heads, x head_si
+   at::Tensor q_t = q.permute({0,2,1,3});
+   at::Tensor k_t = k.permute({0,2,1,3});
+   at::Tensor v_t = v.permute({0,2,1,3});
++  at::Tensor b_t = q.permute({0,2,1,3}); // XXX: ssubrama1 if_empty_then_like q
+   at::Tensor out_t = out.permute({0,2,1,3});
+   at::Tensor dq_t = dq.permute({0,2,1,3});
+   at::Tensor dk_t = dk.permute({0,2,1,3});
+   at::Tensor dv_t = dv.permute({0,2,1,3});
++  at::Tensor db_t = dq.permute({0,2,1,3}); // XXX: ssubrama1 if_empty_then_like q
+   at::Tensor dout_t = dout.permute({0,2,1,3});
+ 
+   at::Tensor softmax_lse_cont = softmax_lse.contiguous();
+@@ -498,12 +502,14 @@ mha_bwd(const at::Tensor &dout,  // batch_size x seqlen_q x num_heads, x head_si
+     err = attn_bwd(mk_aotensor(q_t, "q"),
+                    mk_aotensor(k_t, "k"),
+                    mk_aotensor(v_t, "v"),
++                   mk_aotensor(b_t, "b"), // XXX: ssubrama1, if empty then like q
+                    softmax_scale,
+                    mk_aotensor(out_t, "out"),
+                    mk_aotensor(dout_t, "dout"),
+                    mk_aotensor(dq_t, "dq"),
+                    mk_aotensor(dk_t, "dk"),
+                    mk_aotensor(dv_t, "dv"),
++                   mk_aotensor(db_t, "db"), // XXX: ssubrama1, if empty then like q
+                    mk_aotensor<2>(softmax_lse_cont, "L"),
+                    mk_aotensor<2>(delta, "delta"),
+                    p_dropout,
