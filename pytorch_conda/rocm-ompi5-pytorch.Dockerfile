@@ -6,6 +6,9 @@ ARG base_rocm_docker=amddcgpuce/rocm:6.1.0-ub22-ompi5
 FROM docker.io/${base_rocm_docker}
 #FROM rocm:6.1.0-ub22-ompi5
 
+# Add rocm_version build arg to use in dockerbuild dir name
+ARG rocm_version="6.1.1"
+
 MAINTAINER srinivasan.subramanian@amd.com
 
 # Labels
@@ -27,7 +30,8 @@ LABEL "com.amd.container.aisw.magma.version"=${MAGMA_VERSION}
 ARG MKL_VERSION="2024.1.0"
 LABEL "com.amd.container.aisw.mkl.version"=${MKL_VERSION}
 
-ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}"
+ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
+
 
 ENV MKLROOT="/usr/local"
 ENV MAGMA_HOME="/usr/local/magma"
