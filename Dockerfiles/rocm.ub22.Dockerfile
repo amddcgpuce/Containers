@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.10
+# Revision: V1.11
+# V1.11 Fix for ROCm 6.2, use amdgpuinstall to install mesa libs
 # V1.10 setup link to system libgomp.so
 # V1.9 add gdb, update-alternatives make gcc 12 default
 # V1.8 add g++-12, cmake 3.29
@@ -19,10 +20,13 @@ MAINTAINER sid.srinivasan@amd.com
 MAINTAINER srinivasan.subramanian@amd.com 
 
 # Readme:
-# Docker build command
+# Docker build command for ROCm major release X.Y (Ex: 6.2)
 # docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
 # Podman build command (selinux disable)
 # podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+# Docker build command for ROCm minor releases X.Y.Z (Ex: 6.1.3)
+# docker build --no-cache --build-arg rocm_repo=6.1.3 --build-arg rocm_version=6.1.3 --build-arg rocm_lib_version=60103 --build-arg rocm_path=/opt/rocm-6.1.3 -t amddcgpuce/rocm:6.1.3-ub22 -f rocm.ub22.Dockerfile `pwd`
+#
 
 
 ARG rocm_repo
@@ -118,20 +122,22 @@ RUN apt clean && \
     cd $HOME && \
     mkdir -p downloads && \
     cd downloads && \
+    wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --ubuntudist jammy && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
     python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \
-    wget https://github.com/Kitware/CMake/releases/download/v3.29.0/cmake-3.29.0.tar.gz && \
-    tar zxvf cmake-3.29.0.tar.gz && \
-    cd cmake-3.29.0 && \
+    wget https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2.tar.gz && \
+    tar zxvf cmake-3.30.2.tar.gz && \
+    cd cmake-3.30.2 && \
     ./bootstrap && \
     make && \
     make install && \
     hash -r && \
     cd $HOME && \
-    rm -rf cmake-3.29* && \
+    rm -rf cmake-3.30* && \
     cd $HOME && \
     apt clean && \
     apt-get update && \
