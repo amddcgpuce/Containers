@@ -15,8 +15,8 @@ MAINTAINER srinivasan.subramanian@amd.com
 
 #Lables
 LABEL "com.amd.container.description"="ROCm + OMPIv5 + UCX Container for Development"
-LABEL "com.amd.container.ompi.version"="tags/v5.0.3"
-LABEL "com.amd.container.ucx.version"="remotes/origin/v1.16.0"
+LABEL "com.amd.container.ompi.version"="tags/v5.0.5"
+LABEL "com.amd.container.ucx.version"="remotes/origin/v1.17.0"
 
 RUN apt clean && \
     apt-get clean && \
@@ -27,7 +27,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     git clone https://github.com/openucx/ucx && \
     cd ucx && \
-    git checkout tags/v1.16.0 && \
+    git checkout tags/v1.17.0 && \
     git submodule update --init --recursive && \
     ./autogen.sh && \
     mkdir -p build && \
@@ -38,7 +38,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     git clone https://github.com/open-mpi/ompi && \
     cd ompi && \
-    git checkout tags/v5.0.3 && \
+    git checkout tags/v5.0.5 && \
     git submodule update --init --recursive && \
     ./autogen.pl && \
     mkdir -p build && \
