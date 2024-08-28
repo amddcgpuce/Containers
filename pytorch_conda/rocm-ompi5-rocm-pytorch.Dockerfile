@@ -19,7 +19,7 @@ LABEL "com.amd.container.aisw.description"="Pytorch on Latest ROCm GA Release Co
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.0"
+ARG PYTORCH_VERSION="rocm6.2_internal_testing"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
 ARG TORCHVISION_VERSION="v0.19.0"
@@ -32,9 +32,6 @@ LABEL "com.amd.container.aisw.magma.version"=${MAGMA_VERSION}
 # Update MKL when newer release is available
 ARG MKL_VERSION="2024.1.0"
 LABEL "com.amd.container.aisw.mkl.version"=${MKL_VERSION}
-
-# ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
 
 ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
 
@@ -51,9 +48,6 @@ ENV PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030"
 # limit parallel jobs to 8
 ENV MAX_JOBS="8"
 
-# AOTRITON
-ENV AOTRITON_INSTALLED_PREFIX /opt/aotriton
-
 # Apply patch for aotriton attn_fwd and attn_bwd hack
 #COPY patch.flash_api.hip.diff.txt /root/patch.flash_api.hip.diff.txt
 
@@ -63,9 +57,6 @@ RUN apt clean && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
     python3-pip \
-    zstd \
-    libzstd-dev \
-    ninja-build \
     wget && \
     cd $HOME && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 20 && \
@@ -88,18 +79,9 @@ RUN apt clean && \
     MKLROOT=/usr/local make lib/libmagma.so install && \
     cd $HOME && \
     cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/ROCm/aotriton && \
-    cd aotriton && \
-    git checkout tags/${AOTRITON_VERSION} && \
-    git submodule update --init --recursive && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/opt/aotriton -DCMAKE_BUILD_TYPE=Release -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
-    cd $HOME && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/pytorch/pytorch && \
+    git clone https://github.com/ROCm/pytorch && \
     cd pytorch && \
-    git checkout tags/${PYTORCH_VERSION} && \
+    git checkout ${PYTORCH_VERSION} && \
     git submodule update --init --recursive && \
     pip3 install --no-cache -r requirements.txt && \
     python3 tools/amd_build/build_amd.py && \

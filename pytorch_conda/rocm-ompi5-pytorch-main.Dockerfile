@@ -11,18 +11,15 @@ ARG rocm_version="6.2.0"
 
 MAINTAINER srinivasan.subramanian@amd.com
 
-# README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t srinivamd/rocm-pytorch:py310_pyt240_0190_rocm620 -f rocm-ompi5-pytorch.Dockerfile `pwd`
-
 # Labels
 LABEL "com.amd.container.aisw.description"="Pytorch on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.0"
+ARG PYTORCH_VERSION="v2.4.1-rc2"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
-ARG TORCHVISION_VERSION="v0.19.0"
+ARG TORCHVISION_VERSION="v0.19.1-rc5"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # NOTE: Update MAGMA version when newer release is available
@@ -32,9 +29,6 @@ LABEL "com.amd.container.aisw.magma.version"=${MAGMA_VERSION}
 # Update MKL when newer release is available
 ARG MKL_VERSION="2024.1.0"
 LABEL "com.amd.container.aisw.mkl.version"=${MKL_VERSION}
-
-# ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
 
 ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
 
@@ -51,10 +45,7 @@ ENV PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030"
 # limit parallel jobs to 8
 ENV MAX_JOBS="8"
 
-# AOTRITON
-ENV AOTRITON_INSTALLED_PREFIX /opt/aotriton
-
-# Apply patch for aotriton attn_fwd and attn_bwd hack
+# Apply patch for aotriton attn_fwd and attn_bwd hack -- not for main pytorch branch (latest)
 #COPY patch.flash_api.hip.diff.txt /root/patch.flash_api.hip.diff.txt
 
 RUN apt clean && \
@@ -63,9 +54,6 @@ RUN apt clean && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3 \
     python3-pip \
-    zstd \
-    libzstd-dev \
-    ninja-build \
     wget && \
     cd $HOME && \
     update-alternatives --install /usr/bin/python python /usr/bin/python3 20 && \
@@ -86,15 +74,6 @@ RUN apt clean && \
     cp make.inc-examples/make.inc.hip-gcc-mkl make.inc && \
     sed -i -e "/LIBDIR.*ROCM_PATH.*MKLROOT/ s/$/ -L\$\(MKLROOT\)\/lib/" make.inc && \
     MKLROOT=/usr/local make lib/libmagma.so install && \
-    cd $HOME && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/ROCm/aotriton && \
-    cd aotriton && \
-    git checkout tags/${AOTRITON_VERSION} && \
-    git submodule update --init --recursive && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/opt/aotriton -DCMAKE_BUILD_TYPE=Release -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
     cd $HOME && \
     cd $HOME/dockerbuild/${dockerbuild_dirname} && \
     git clone https://github.com/pytorch/pytorch && \

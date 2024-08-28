@@ -1,4 +1,4 @@
-# ROCm PyTorch Dockerfile
+# ROCm HIP MAGMA Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
@@ -12,18 +12,12 @@ ARG rocm_version="6.2.0"
 MAINTAINER srinivasan.subramanian@amd.com
 
 # README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t srinivamd/rocm-pytorch:py310_pyt240_0190_rocm620 -f rocm-ompi5-pytorch.Dockerfile `pwd`
+# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t srinivamd/rocm:6.2.0-ub22-hipmagmav2.8.0 -f rocm-ompi5-hipmagma.Dockerfile `pwd`
 
 # Labels
-LABEL "com.amd.container.aisw.description"="Pytorch on Latest ROCm GA Release Container for Development"
+LABEL "com.amd.container.aisw.description"="HIP MAGMA on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
-
-ARG PYTORCH_VERSION="v2.4.0"
-LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
-
-ARG TORCHVISION_VERSION="v0.19.0"
-LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # NOTE: Update MAGMA version when newer release is available
 ARG MAGMA_VERSION="v2.8.0"
@@ -33,11 +27,7 @@ LABEL "com.amd.container.aisw.magma.version"=${MAGMA_VERSION}
 ARG MKL_VERSION="2024.1.0"
 LABEL "com.amd.container.aisw.mkl.version"=${MKL_VERSION}
 
-# ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
-
-ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
-
+ARG dockerbuild_dirname="hipmagma.${MAGMA_VERSION}.${rocm_version}"
 
 ENV MKLROOT="/usr/local"
 ENV MAGMA_HOME="/usr/local/magma"
@@ -46,16 +36,9 @@ ENV LIBRARY_PATH="${LIBRARY_PATH}:${MAGMA_HOME}/lib"
 ENV LD_RUN_PATH="${LD_RUN_PATH}:${MAGMA_HOME}/lib"
 ENV LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${MAGMA_HOME}/lib"
 ENV CPATH="${CPATH}:${MAGMA_HOME}/include"
-ENV PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030"
 
 # limit parallel jobs to 8
 ENV MAX_JOBS="8"
-
-# AOTRITON
-ENV AOTRITON_INSTALLED_PREFIX /opt/aotriton
-
-# Apply patch for aotriton attn_fwd and attn_bwd hack
-#COPY patch.flash_api.hip.diff.txt /root/patch.flash_api.hip.diff.txt
 
 RUN apt clean && \
     apt-get clean && \
@@ -87,37 +70,11 @@ RUN apt clean && \
     sed -i -e "/LIBDIR.*ROCM_PATH.*MKLROOT/ s/$/ -L\$\(MKLROOT\)\/lib/" make.inc && \
     MKLROOT=/usr/local make lib/libmagma.so install && \
     cd $HOME && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/ROCm/aotriton && \
-    cd aotriton && \
-    git checkout tags/${AOTRITON_VERSION} && \
-    git submodule update --init --recursive && \
-    mkdir build && \
-    cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=/opt/aotriton -DCMAKE_BUILD_TYPE=Release -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
-    cd $HOME && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/pytorch/pytorch && \
-    cd pytorch && \
-    git checkout tags/${PYTORCH_VERSION} && \
-    git submodule update --init --recursive && \
-    pip3 install --no-cache -r requirements.txt && \
-    python3 tools/amd_build/build_amd.py && \
-    PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
-    cd $HOME && \
-    rm /etc/ld.so.cache && \
-    ldconfig && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/pytorch/vision.git && \
-    cd vision && \
-    git checkout tags/${TORCHVISION_VERSION} && \
-    git submodule update --init --recursive && \
-    PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
-    cd $HOME && \
     rm /etc/ld.so.cache && \
     ldconfig && \
     hash -r && \
     pip3 list -v && \
+    rm -rf $HOME/dockerbuild && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache
