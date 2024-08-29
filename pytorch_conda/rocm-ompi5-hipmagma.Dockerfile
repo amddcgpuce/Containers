@@ -12,7 +12,7 @@ ARG rocm_version="6.2.0"
 MAINTAINER srinivasan.subramanian@amd.com
 
 # README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t srinivamd/rocm:6.2.0-ub22-hipmagmav2.8.0 -f rocm-ompi5-hipmagma.Dockerfile `pwd`
+# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 -f rocm-ompi5-hipmagma.Dockerfile `pwd`
 
 # Labels
 LABEL "com.amd.container.aisw.description"="HIP MAGMA on Latest ROCm GA Release Container for Development"

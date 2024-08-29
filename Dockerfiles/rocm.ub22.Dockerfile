@@ -147,6 +147,7 @@ RUN apt clean && \
     cd $HOME && \
     echo "/opt/rocm-${rocm_version}/lib" | tee -a /etc/ld.so.conf.d/rocmlib.conf && \
     ln -sr /usr/lib/x86_64-linux-gnu/libgomp.so.1 /usr/lib/x86_64-linux-gnu/libgomp.so && \
+    rm /etc/ld.so.cache && \
     ldconfig && \
     cd $HOME && \
     rm -rf /tmp/* && \
