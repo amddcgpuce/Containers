@@ -1,8 +1,7 @@
-# ROCm PyTorch Stable Version Dockerfile
+# ROCm Latest PyTorch Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
-#ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
 #FROM rocm:6.2.0-ub22-hipmagmav280
@@ -12,18 +11,15 @@ ARG rocm_version="6.2.0"
 
 MAINTAINER srinivasan.subramanian@amd.com
 
-# README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm-pytorch:6.2.0-ub22-py310_pyt240_0190_rocm620 -f rocm-ompi5-pytorch.Dockerfile `pwd`
-
 # Labels
-LABEL "com.amd.container.aisw.description"="Stable Pytorch Version on Latest ROCm GA Release Container for Development"
+LABEL "com.amd.container.aisw.description"="Latest Pytorch on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.0"
+ARG PYTORCH_VERSION="v2.4.1-rc2"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
-ARG TORCHVISION_VERSION="v0.19.0"
+ARG TORCHVISION_VERSION="v0.19.1-rc5"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
