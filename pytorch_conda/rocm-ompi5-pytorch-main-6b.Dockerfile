@@ -23,7 +23,7 @@ ARG TORCHVISION_VERSION="v0.19.1-rc5"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
+ARG AOTRITON_VERSION="0.6b"
 
 ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
 
@@ -63,14 +63,10 @@ RUN apt clean && \
     cd aotriton && \
     git checkout tags/${AOTRITON_VERSION} && \
     git submodule update --init --recursive && \
+    sed -i -e 's%^        # create build directories%        with open(triton_cache_path+"/llvm/llvm-49af6502-ubuntu-x64/lib/cmake/mlir/MLIRConfig.cmake", "r+") as mlirconfig:\n            filebuf = mlirconfig.read()\n            filebuf = filebuf.replace(r"""find_package(LLVM ${LLVM_VERSION} EXACT REQUIRED CONFIG""", r"""find_package(LLVM ${LLVM_VERSION} EXACT REQUIRED CONFIG PATHS "${MLIR_INSTALL_PREFIX}/lib/cmake/llvm" NO_DEFAULT_PATH""")\n            mlirconfig.seek(0)\n            mlirconfig.write(filebuf)\n            mlirconfig.truncate()\n        # create build directories%' third_party/triton/python/setup.py && \
     mkdir build && \
     cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
-    ninja install && \
-    cd .. && \
-    mkdir build.a && \
-    cd build.a && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_NO_SHARED=ON -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_NO_SHARED=ON -DAOTRITON_COMPRESS_KERNEL=OFF -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
     ninja install && \
     echo "${aotriton_install}/lib" | tee -a /etc/ld.so.conf.d/aotriton.conf && \
     rm -f /etc/ld.so.cache && \

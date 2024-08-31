@@ -16,14 +16,14 @@ LABEL "com.amd.container.aisw.description"="Latest Pytorch on Latest ROCm GA Rel
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="latest"
+ARG PYTORCH_VERSION="v2.4.0"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
-ARG TORCHVISION_VERSION="v0.19.1-rc5"
+ARG TORCHVISION_VERSION="v0.19.0"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
+ARG AOTRITON_VERSION="0.6b"
 
 ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
 
@@ -63,14 +63,18 @@ RUN apt clean && \
     cd aotriton && \
     git checkout tags/${AOTRITON_VERSION} && \
     git submodule update --init --recursive && \
+    sed -i -e 's%^        # create build directories%        with open(triton_cache_path+"/llvm/llvm-49af6502-ubuntu-x64/lib/cmake/mlir/MLIRConfig.cmake", "r+") as mlirconfig:\n            filebuf = mlirconfig.read()\n            filebuf = filebuf.replace(r"""find_package(LLVM ${LLVM_VERSION} EXACT REQUIRED CONFIG""", r"""find_package(LLVM ${LLVM_VERSION} EXACT REQUIRED CONFIG PATHS "${MLIR_INSTALL_PREFIX}/lib/cmake/llvm" NO_DEFAULT_PATH""")\n            mlirconfig.seek(0)\n            mlirconfig.write(filebuf)\n            mlirconfig.truncate()\n        # create build directories%' third_party/triton/python/setup.py && \
     mkdir build && \
     cd build && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_NO_SHARED=ON -DAOTRITON_COMPRESS_KERNEL=OFF -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
     ninja install && \
     cd .. && \
-    mkdir build.a && \
-    cd build.a && \
-    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_NO_SHARED=ON -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
+    mkdir build.so && \
+    cd build.so && \
+    cmake .. -DCMAKE_INSTALL_PREFIX=${aotriton_install} -DCMAKE_BUILD_TYPE=Release -DAOTRITON_NO_SHARED=OFF -DAOTRITON_COMPRESS_KERNEL=OFF -DAOTRITON_GPU_BUILD_TIMEOUT=0 -G Ninja && \
+    sed -i -e "s/libaotriton_v2.a/libaotriton_v2.so/" build.ninja && \
+    sed -i -e "s#LINK_LIBRARIES = v2src/libaotriton_v2.so#LINK_LIBRARIES = -laotriton_v2  -lzstd\n  LINK_PATH = -L\${cmake_ninja_workdir}/v2src#" build.ninja && \
+    sed -i -e "s/libaotriton_v2.a/libaotriton_v2.so/" v2src/cmake_install.cmake && \
     ninja install && \
     echo "${aotriton_install}/lib" | tee -a /etc/ld.so.conf.d/aotriton.conf && \
     rm -f /etc/ld.so.cache && \

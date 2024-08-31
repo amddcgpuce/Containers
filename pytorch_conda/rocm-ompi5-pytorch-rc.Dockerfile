@@ -16,14 +16,14 @@ LABEL "com.amd.container.aisw.description"="Latest Pytorch on Latest ROCm GA Rel
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="latest"
+ARG PYTORCH_VERSION="v2.4.1-rc3"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
 ARG TORCHVISION_VERSION="v0.19.1-rc5"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
-ARG AOTRITON_VERSION="0.7b"
+ARG AOTRITON_VERSION="0.6b"
 
 ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
 
@@ -79,6 +79,7 @@ RUN apt clean && \
     cd $HOME/dockerbuild/${dockerbuild_dirname} && \
     git clone https://github.com/pytorch/pytorch && \
     cd pytorch && \
+    git checkout tags/${PYTORCH_VERSION} && \
     git submodule update --init --recursive && \
     pip3 install --no-cache -r requirements.txt && \
     python3 tools/amd_build/build_amd.py && \
