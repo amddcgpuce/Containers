@@ -2,9 +2,14 @@
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
+# V1.1: Workaround for aotriton, pytorch compile error
+#
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
 #FROM rocm:6.2.0-ub22-hipmagmav280
+
+# README
+# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-pt240-py310_0190_06b -f rocm-ompi5-pytorch-6b.Dockerfile `pwd`
 
 # Add rocm_version build arg to use in dockerbuild dir name
 ARG rocm_version="6.2.0"
@@ -85,6 +90,7 @@ RUN apt clean && \
     cd pytorch && \
     git submodule update --init --recursive && \
     pip3 install --no-cache -r requirements.txt && \
+    sed -i -e '/Wno-unused-but-set-parameter/ a  target_compile_options_if_supported(test_api \"-Wno-error=nonnull\")' test/cpp/api/CMakeLists.txt && \
     python3 tools/amd_build/build_amd.py && \
     PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
     cd $HOME && \
