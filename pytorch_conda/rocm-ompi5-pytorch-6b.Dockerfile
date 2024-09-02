@@ -41,6 +41,9 @@ ENV MAX_JOBS="8"
 ARG aotriton_install="/opt/aotriton"
 ENV AOTRITON_INSTALLED_PREFIX=${aotriton_install}
 
+# Install triton
+ARG TRITON_VERSION="3.0.x"
+
 # Set up env for aotriton install
 ENV CPATH="${AOTRITON_INSTALLED_PREFIX}/include:${CPATH}"
 ENV LIBRARY_PATH="${AOTRITON_INSTALLED_PREFIX}/lib:${LIBRARY_PATH}"
@@ -86,10 +89,20 @@ RUN apt clean && \
     ldconfig && \
     cd $HOME && \
     cd $HOME/dockerbuild/${dockerbuild_dirname} && \
+    git clone https://github.com/triton-lang/triton && \
+    cd triton && \
+    git checkout release/${TRITON_VERSION} && \
+    git submodule update --init --recursive && \
+    pip3 install --no-cache-dir ninja cmake wheel && \
+    cd python && \
+    python3 setup.py install && \
+    cd $HOME && \
+    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
     git clone https://github.com/pytorch/pytorch && \
     cd pytorch && \
+    git checkout tags/${PYTORCH_VERSION} && \
     git submodule update --init --recursive && \
-    pip3 install --no-cache -r requirements.txt && \
+    pip3 install --no-cache-dir -r requirements.txt && \
     sed -i -e '/Wno-unused-but-set-parameter/ a  target_compile_options_if_supported(test_api \"-Wno-error=nonnull\")' test/cpp/api/CMakeLists.txt && \
     python3 tools/amd_build/build_amd.py && \
     PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
@@ -101,6 +114,7 @@ RUN apt clean && \
     cd vision && \
     git checkout tags/${TORCHVISION_VERSION} && \
     git submodule update --init --recursive && \
+    sed -i -e "s/^    pytorch_dep,//" setup.py && \
     PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
     cd $HOME && \
     rm /etc/ld.so.cache && \
