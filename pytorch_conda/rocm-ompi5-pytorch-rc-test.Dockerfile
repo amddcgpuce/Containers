@@ -2,7 +2,8 @@
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
-# Use aotriton 0.7b with PyTorch stable
+# Use aotriton 0.7b with PyTorch RC
+# Don't delete souces, keep for unit tests
 #
 #ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
@@ -118,7 +119,6 @@ RUN apt clean && \
     ldconfig && \
     hash -r && \
     pip3 list -v && \
-    rm -rf $HOME/dockerbuild && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache

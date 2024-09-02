@@ -2,6 +2,8 @@
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
+# Use aotriton 0.7b with PyTorch stable
+#
 #ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
@@ -39,6 +41,9 @@ ENV MAX_JOBS="8"
 # Install AOTRITON under /opt/aotriton
 ARG aotriton_install="/opt/aotriton"
 ENV AOTRITON_INSTALLED_PREFIX=${aotriton_install}
+
+# Install triton
+ARG TRITON_VERSION="3.0.x"
 
 # Set up env for aotriton install
 ENV CPATH="${AOTRITON_INSTALLED_PREFIX}/include:${CPATH}"
@@ -81,11 +86,21 @@ RUN apt clean && \
     ldconfig && \
     cd $HOME && \
     cd $HOME/dockerbuild/${dockerbuild_dirname} && \
+    git clone https://github.com/triton-lang/triton && \
+    cd triton && \
+    git checkout release/${TRITON_VERSION} && \
+    git submodule update --init --recursive && \
+    pip3 install --no-cache-dir ninja cmake wheel && \
+    cd python && \
+    python3 setup.py install && \
+    cd $HOME && \
+    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
     git clone https://github.com/pytorch/pytorch && \
     cd pytorch && \
     git checkout tags/${PYTORCH_VERSION} && \
     git submodule update --init --recursive && \
-    pip3 install --no-cache -r requirements.txt && \
+    pip3 install --no-cache-dir -r requirements.txt && \
+    sed -i -e '/Wno-unused-but-set-parameter/ a  target_compile_options_if_supported(test_api \"-Wno-error=nonnull\")' test/cpp/api/CMakeLists.txt && \
     python3 tools/amd_build/build_amd.py && \
     PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
     cd $HOME && \
@@ -96,6 +111,7 @@ RUN apt clean && \
     cd vision && \
     git checkout tags/${TORCHVISION_VERSION} && \
     git submodule update --init --recursive && \
+    sed -i -e "s/^    pytorch_dep,//" setup.py && \
     PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
     cd $HOME && \
     rm /etc/ld.so.cache && \

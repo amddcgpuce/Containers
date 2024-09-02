@@ -17,7 +17,7 @@ ARG rocm_version="6.2.0"
 MAINTAINER srinivasan.subramanian@amd.com
 
 # Labels
-LABEL "com.amd.container.aisw.description"="Latest Pytorch on Latest ROCm GA Release Container for Development"
+LABEL "com.amd.container.aisw.description"="Stable Pytorch on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
