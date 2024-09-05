@@ -1,9 +1,15 @@
-# Podman Build Command
-# For PyTorch Version 2.0.1 with ROCm 6.0.0
+# ROCm docker containers to build PyTorch from sources
+## ROCm plus HIPMAGMA
+## Dockerfile: rocm-ompi5-hipmagma.Dockerfile
+Build using ROCm + UCX + OMPI container as base image
 ```
-podman build --no-cache -t srinivamd/pytorch_conda:py39_pyt201_rocm600_v1 -f Dockerfile `pwd`
+time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 -f rocm-ompi5-hipmagma.Dockerfile `pwd`
 ```
-# Podman Run Command
+
+## Pytorch 2.4.0 with ROCm 6.2.0
+### Dockerfile: rocm-ompi5-pytorch-6b.Dockerfile
+Build using `amddcgpuce/rocm:6.2.0-ub22-hipmagmav280` as base docker
 ```
-podman run -it --privileged --network=host --ipc=host  -v /shared/prod/home/ssubrama1:/workdir -v /shareddata:/shareddata -v /shareddata.ai:/shareddata.ai -v /shared/apps:/shared/apps --workdir /workdir localhost/srinivamd/pytorch_conda:py39_pyt201_rocm600_v1 bash
+time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-pt240-py310_0190_06b -f rocm-ompi5-pytorch-6b.Dockerfile `pwd`
 ```
+

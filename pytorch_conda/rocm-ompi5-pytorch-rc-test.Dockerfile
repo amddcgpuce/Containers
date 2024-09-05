@@ -2,9 +2,9 @@
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
-# Use aotriton 0.7b with PyTorch stable
+# Use aotriton 0.7b with PyTorch RC
+# Don't delete souces, keep for unit tests
 #
-
 #ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
@@ -23,10 +23,10 @@ LABEL "com.amd.container.aisw.description"="Stable Pytorch Version on Latest ROC
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.0"
+ARG PYTORCH_VERSION="v2.4.1-rc3"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
-ARG TORCHVISION_VERSION="v0.19.0"
+ARG TORCHVISION_VERSION="v0.19.1-rc5"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
@@ -119,7 +119,6 @@ RUN apt clean && \
     ldconfig && \
     hash -r && \
     pip3 list -v && \
-    rm -rf $HOME/dockerbuild && \
     rm -rf /var/lib/apt/lists/* && \
     rm -rf /tmp/* && \
     rm -rf $HOME/.cache
