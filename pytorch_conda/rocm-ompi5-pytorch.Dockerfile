@@ -4,6 +4,7 @@
 #V1.1
 # Use aotriton 0.7b with PyTorch stable
 #
+
 #ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}

@@ -4,6 +4,7 @@
 #V1.1
 # Use aotriton 0.7b version
 #
+
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
 #FROM rocm:6.2.0-ub22-hipmagmav280
@@ -17,6 +18,7 @@ MAINTAINER srinivasan.subramanian@amd.com
 LABEL "com.amd.container.aisw.description"="Latest Pytorch on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
+
 
 ARG PYTORCH_VERSION="latest"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}

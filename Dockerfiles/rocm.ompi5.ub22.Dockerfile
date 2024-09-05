@@ -19,6 +19,7 @@ ARG UCX_VERSION="v1.17.0"
 
 #Lables
 LABEL "com.amd.container.description"="ROCm + OMPIv5 + UCX Container for Development"
+
 LABEL "com.amd.container.ompi.version"=${OMPI_VERSION}
 LABEL "com.amd.container.ucx.version"=${UCX_VERSION}
 
