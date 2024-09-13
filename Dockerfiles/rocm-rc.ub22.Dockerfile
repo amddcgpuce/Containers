@@ -1,44 +1,34 @@
-# ROCm Build  (internal artifactory and RC release) Dockerfile
+# ROCm RC Release Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author: srinivasan.subramanian@amd.com
-# Revision: V1.4
-# V1.4 setup link to system libgomp.so
-# V1.3 add gdb, update alternatives gcc-12 default
-# V1.2 add g++-12, override baseurl=default option V1.72 rocminstall script
-# V1.1 add gawk, python3-venv (corresponding to V1.6 rocm.ub22.Dockerfile)
-# V1.0 initial version based on rocm.ub22.Dockerfile V1.4
+# Revision: V1.0
+# V1.0 initial version for 6.2.1 RC
 
 FROM ubuntu:22.04
 
-MAINTAINER sid.srinivasan@amd.com 
 MAINTAINER srinivasan.subramanian@amd.com 
 
 # Readme:
-# Docker build command for ROCm CI build for 6.0.1
-# docker build --no-cache --build-arg rocm_repo=6.0.1 --build-arg rocm_version=6.0.1 --build-arg rocm_lib_version=60001 --build-arg rocm_path=/opt/rocm-6.0.1 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=<url> -t amddcgpuce/rocm-ci:6.0.1-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
 # Docker build command for ROCm RC release (ubuntu22)
-# docker build --no-cache --build-arg rocm_repo=6.1.0 --build-arg rocm_version=6.1.0 --build-arg rocm_lib_version=60100 --build-arg rocm_path=/opt/rocm-6.1.0 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ -t amddcgpuce/rocm-ci:6.1.0-rc3-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
-# Podman build command (selinux disable)
-# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0.1 --build-arg rocm_version=6.0.1 --build-arg rocm_lib_version=60001 --build-arg rocm_path=/opt/rocm-6.0.1 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=<url> -t amddcgpuce/rocm-ci:6.0.1-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
+# docker build --no-cache --build-arg rocm_repo=6.1.0 --build-arg rocm_version=6.1.0 --build-arg rocm_lib_version=60100 --build-arg rocm_path=/opt/rocm-6.1.0 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ --build-arg AMDGPU_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ -t amddcgpuce/rocm-rc:6.1.0-rc3-ub22 -f rocm-rc.ub22.Dockerfile `pwd`
 # Podman build command (selinux disable) for ROCm RC release (example 6.1 RC)
-# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.1.0 --build-arg rocm_version=6.1.0 --build-arg rocm_lib_version=60100 --build-arg rocm_path=/opt/rocm-6.1.0 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.1/ -t amddcgpuce/rocm-ci:6.1.0-rc3-ub22 -f rocm.ci.ub22.Dockerfile `pwd`
+# time podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.2.1 --build-arg rocm_version=6.2.1 --build-arg rocm_lib_version=60201 --build-arg rocm_path=/opt/rocm-6.2.1 --build-arg ROCM_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/rocm/apt/.apt_6.2.1/ --build-arg AMDGPU_CI_ARTIFACTORY_BUILD_URL=https://repo.radeon.com/amdgpu/.6.2.1/ubuntu -t amddcgpuce/rocm-rc:6.2.1-rc-ub22 -f rocm-rc.ub22.Dockerfile `pwd`
 
 ARG rocm_repo
 ENV ROCM_REPO=${rocm_repo}
 ARG rocm_path
 ENV ROCM_PATH=${rocm_path}
+ENV ROCM_HOME=${rocm_path}
 ENV HIP_PATH=${rocm_path}
 ARG rocm_lib_version
 ENV ROCM_LIBPATCH_VERSION=${rocm_lib_version}
 ARG rocm_version
 ENV ROCM_VERSION=${rocm_version}
-#ARG ROCM_CI_ARTIFACTORY_BUILD_URL="https://compute-artifactory.amd.com/artifactory/list/rocm-osdb-22.04-deb/compute-rocm-rel-6.0-112/"
-ARG ROCM_CI_ARTIFACTORY_BUILD_URL="default"
-#ARG AMDGPU_CI_ARTIFACTORY_BUILD_URL="https://compute-artifactory.amd.com/artifactory/list/rocm-osdb-22.04-deb/compute-rocm-rel-6.0-112/"
-ARG AMDGPU_CI_ARTIFACTORY_BUILD_URL="default"
+ARG ROCM_CI_ARTIFACTORY_BUILD_URL="https://repo.radeon.com/rocm/apt/.apt_6.2.1/"
+ARG AMDGPU_CI_ARTIFACTORY_BUILD_URL="https://repo.radeon.com/amdgpu/.6.2.1/ubuntu/"
 
 #Lables
-LABEL "com.amd.container.description"="Base ROCm Release Container for Development"
+LABEL "com.amd.container.description"="Base ROCm RC Release Container for Development"
 LABEL "com.amd.container.baseos.type"="Ubuntu 22"
 LABEL "com.amd.container.rocm.version"=$rocm_version
 LABEL "com.amd.container.rocm.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942"
@@ -118,7 +108,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
-    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl ${ROCM_CI_ARTIFACTORY_BUILD_URL} --ubuntudist jammy && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl ${AMDGPU_CI_ARTIFACTORY_BUILD_URL} --ubuntudist jammy && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
     python3 ./rocminstall.py --nokernel  --baseurl ${ROCM_CI_ARTIFACTORY_BUILD_URL} --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
     cd $HOME && \

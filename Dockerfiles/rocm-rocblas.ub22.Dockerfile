@@ -11,11 +11,13 @@ MAINTAINER srinivasan.subramanian@amd.com
 # Docker build command
 # BASE_ROCM_DOCKER=amddcgpuce/rocm:6.2.0-ub22 bash -c 'docker build --no-cache --build-arg base_rocm_docker=${BASE_ROCM_DOCKER} -t ${BASE_ROCM_DOCKER}-rocblas -f rocblas.ub22.Dockerfile `pwd`'
 # Podman build command (selinux disable)
-# BASE_ROCM_DOCKER=amddcgpuce/rocm:6.2.0-ub22 bash -c 'podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=${BASE_ROCM_DOCKER} -t ${BASE_ROCM_DOCKER}-rocblas -f rocm-rocblas.ub22.Dockerfile `pwd`'
+# BASE_ROCM_DOCKER=amddcgpuce/rocm:6.2.0-ub22 bash -c 'podman build --no-cache --security-opt label=disable --build-arg rocblas_ver=rocm-6.2.0 --build-arg base_rocm_docker=${BASE_ROCM_DOCKER} -t ${BASE_ROCM_DOCKER}-rocblas -f rocm-rocblas.ub22.Dockerfile `pwd`'
+
+ARG rocblas_ver="rocm-6.2.0"
 
 #Lables
 LABEL "com.amd.container.description"="ROCm/rocblas clients"
-LABEL "com.amd.container.rocblas.version"="v6.2.0"
+LABEL "com.amd.container.rocblas.version"=${rocblas_ver}
 
 RUN apt clean && \
     apt-get clean && \
@@ -26,17 +28,17 @@ RUN apt clean && \
     cd $HOME && \
     git clone https://github.com/ROCm/rocBLAS && \
     cd $HOME/rocBLAS && \
-    git checkout tags/rocm-6.2.0 && \
+    git checkout tags/${rocblas_ver} && \
     sed -i -e "s/xvf blis.tar.gz/xvf blis.tar.gz --no-same-owner/" install.sh && \
     sed -i -e "/BUILD_CLIENTS ON/  s/$/\n   set( BUILD_CLIENTS_TESTS OFF )\n/" CMakeLists.txt && \
     ./install.sh -c && \
     cd $HOME/rocBLAS/build/release && \
     make package/fast && \
-    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-benchmarks_4.2.0.60200-54f305c1~dirty_amd64.deb / && \
-    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-clients_4.2.0.60200-54f305c1~dirty_amd64.deb / && \
-    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-clients-common_4.2.0.60200-54f305c1~dirty_amd64.deb / && \
-    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-dev_4.2.0.60200-54f305c1~dirty_amd64.deb / && \
-    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-samples_4.2.0.60200-54f305c1~dirty_amd64.deb / && \
+    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-benchmarks_*_amd64.deb / && \
+    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-clients_*_amd64.deb / && \
+    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-clients-common_*_amd64.deb / && \
+    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-dev_*_amd64.deb / && \
+    dpkg-deb -xv $HOME/rocBLAS/build/release/rocblas-samples_*_amd64.deb / && \
     ldconfig && \
     cd $HOME && \
     git clone https://github.com/ROCm/hipBLAS-common && \
@@ -50,16 +52,16 @@ RUN apt clean && \
     cd $HOME && \
     git clone https://github.com/ROCm/hipBLASLt.git && \
     cd $HOME/hipBLASLt && \
-    git checkout tags/rocm-6.2.0 && \
+    git checkout tags/${rocblas_ver} && \
     sed -i -e "s/xvf blis.tar.gz/xvf blis.tar.gz --no-same-owner/" install.sh && \
     sed -i -e "s/BUILD_CLIENTS_TESTS=ON/BUILD_CLIENTS_TESTS=OFF/" install.sh && \
     ./install.sh -cd && \
     cd build/release/clients && \
     make package/fast && \
-    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-benchmarks_0.8.0.60200-50015815*amd64.deb / && \
-    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-clients_0.8.0.60200-50015815*amd64.deb / && \
-    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-clients-common_0.8.0.60200-50015815*amd64.deb / && \
-    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-samples_0.8.0.60200-50015815*amd64.deb / && \
+    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-benchmarks_*amd64.deb / && \
+    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-clients_*amd64.deb / && \
+    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-clients-*amd64.deb / && \
+    dpkg-deb -xv $HOME/hipBLASLt/build/release/hipblaslt-samples_*amd64.deb / && \
     ldconfig && \
     hash -r && \
     rm -rf $HOME/rocBLAS && \

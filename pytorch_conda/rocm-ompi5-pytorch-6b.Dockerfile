@@ -21,10 +21,10 @@ LABEL "com.amd.container.aisw.description"="Stable Pytorch on Latest ROCm GA Rel
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.0"
+ARG PYTORCH_VERSION="v2.4.1"
 LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
 
-ARG TORCHVISION_VERSION="v0.19.0"
+ARG TORCHVISION_VERSION="v0.19.1"
 LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
 
 # ROCm AOTRITON version
