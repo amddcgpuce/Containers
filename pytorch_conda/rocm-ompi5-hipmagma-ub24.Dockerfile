@@ -1,10 +1,10 @@
-# ROCm HIP MAGMA Dockerfile
+# ROCm HIP MAGMA Dockerfile for Ubuntu 24
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
 #V1.1
 ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub24-ompi5-ucx17
 FROM docker.io/${base_rocm_docker}
-#FROM rocm:6.2.0-ub22-ompi5-ucx17
+#FROM rocm:6.2.0-ub24-ompi5-ucx17
 
 # Add rocm_version build arg to use in dockerbuild dir name
 ARG rocm_version="6.2.0"
@@ -12,12 +12,12 @@ ARG rocm_version="6.2.0"
 MAINTAINER srinivasan.subramanian@amd.com
 
 # README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 -f rocm-ompi5-hipmagma.Dockerfile `pwd`
+# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub24-ompi5-ucx17 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub24-hipmagmav280 -f rocm-ompi5-hipmagma-ub24.Dockerfile `pwd`
 
 # Labels
 LABEL "com.amd.container.aisw.description"="HIP MAGMA on Latest ROCm GA Release Container for Development"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
-LABEL "com.amd.container.aisw.python3.version"="3.10"
+LABEL "com.amd.container.aisw.python3.version"="3.12"
 
 # NOTE: Update MAGMA version when newer release is available
 ARG MAGMA_VERSION="v2.8.0"

@@ -1,38 +1,31 @@
-# ROCm PyTorch Stable Version Dockerfile
+# ROCm Latest GA with HIP MAGMA and AOTRITON Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
-#V1.1
-# Use aotriton 0.6b with PyTorch RC version
-# Don't delete souces, keep for unit tests
+#V1.0
+# V1.0: Base docker with ROCm, OMPI5, MKL, HIP MAGMA, AOTRITON, Triton preinstalled for pytorch build
 #
-#ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub24-ompi5-ucx17
-ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub24-hipmagmav280
+ARG base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280
 FROM docker.io/${base_rocm_docker}
-#FROM rocm:6.2.0-ub24-hipmagmav280
+#FROM rocm:6.2.0-ub22-hipmagmav280
+
+# README
+# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub22-hipmagmav280 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm:6.2.0-ub22-hipmagmav280-aot06b -f rocm-ompi5-aotriton-6b.Dockerfile `pwd`
 
 # Add rocm_version build arg to use in dockerbuild dir name
 ARG rocm_version="6.2.0"
 
 MAINTAINER srinivasan.subramanian@amd.com
 
-# README - podman command line to build rocm-pytorch docker
-# time podman build --no-cache --security-opt label=disable --build-arg base_rocm_docker=amddcgpuce/rocm:6.2.0-ub24-hipmagmav280 --build-arg rocm_version=6.2.0 -v $HOME:/workdir -t amddcgpuce/rocm-pytorch:6.2.0-ub24-py310_pyt240_0190_rocm620 -f rocm-ompi5-pytorch.Dockerfile `pwd`
-
 # Labels
-LABEL "com.amd.container.aisw.description"="Stable Pytorch Version on Latest ROCm GA Release Container for Development"
+LABEL "com.amd.container.aisw.description"="Base docker with ROCm, OMPI5, MKL, HIP MAGMA, AOTRITON preinstalled for Pytorch"
 LABEL "com.amd.container.aisw.gfxarch"="gfx908, gfx90a, gfx940, gfx941, gfx942, gfx1030"
 LABEL "com.amd.container.aisw.python3.version"="3.10"
 
-ARG PYTORCH_VERSION="v2.4.1-rc3"
-LABEL "com.amd.container.aisw.torch.version"=${PYTORCH_VERSION}
-
-ARG TORCHVISION_VERSION="v0.19.1-rc5"
-LABEL "com.amd.container.aisw.torchvision.version"=${TORCHVISION_VERSION}
-
 # ROCm AOTRITON version
 ARG AOTRITON_VERSION="0.6b"
+LABEL "com.amd.container.aisw.aotriton.version"=${AOTRITON_VERSION}
 
-ARG dockerbuild_dirname="pytorch.${PYTORCH_VERSION}.${TORCHVISION_VERSION}.${rocm_version}"
+ARG dockerbuild_dirname="base.${AOTRITON_VERSION}.${rocm_version}"
 
 ENV PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030"
 
@@ -45,6 +38,7 @@ ENV AOTRITON_INSTALLED_PREFIX=${aotriton_install}
 
 # Install triton
 ARG TRITON_VERSION="3.0.x"
+LABEL "com.amd.container.aisw.triton.version"=${TRITON_VERSION}
 
 # Set up env for aotriton install
 ENV CPATH="${AOTRITON_INSTALLED_PREFIX}/include:${CPATH}"
@@ -98,28 +92,6 @@ RUN apt clean && \
     pip3 install --no-cache-dir ninja cmake wheel && \
     cd python && \
     python3 setup.py install && \
-    cd $HOME && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/pytorch/pytorch && \
-    cd pytorch && \
-    git checkout tags/${PYTORCH_VERSION} && \
-    git submodule update --init --recursive && \
-    pip3 install --no-cache-dir -r requirements.txt && \
-    sed -i -e '/Wno-unused-but-set-parameter/ a  target_compile_options_if_supported(test_api \"-Wno-error=nonnull\")' test/cpp/api/CMakeLists.txt && \
-    sed -i -e '/Workaround for https:/ a  set_source_files_properties(src/UtilsAvx512.cc PROPERTIES COMPILE_FLAGS \"-Wno-error=maybe-uninitialized\")' third_party/fbgemm/CMakeLists.txt && \
-    python3 tools/amd_build/build_amd.py && \
-    sed -i -e "s#gtest_main#gtest_main /opt/rocm-6.2.0/lib/libhsa-runtime64.so /opt/rocm-6.2.0/lib/librocprofiler-register.so#" c10/hip/test/CMakeLists.txt && \
-    PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
-    cd $HOME && \
-    rm -f /etc/ld.so.cache && \
-    ldconfig && \
-    cd $HOME/dockerbuild/${dockerbuild_dirname} && \
-    git clone https://github.com/pytorch/vision.git && \
-    cd vision && \
-    git checkout tags/${TORCHVISION_VERSION} && \
-    git submodule update --init --recursive && \
-    sed -i -e "s/^    pytorch_dep,//" setup.py && \
-    PYTORCH_ROCM_ARCH="gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030" USE_ROCM=1 USE_CUDA=OFF CMAKE_VERBOSE_MAKEFILE=1 CMAKE_CXX_COMPILER=g++ CMAKE_C_COMPILER=gcc COMAKE_Fortran_COMPILER=gfortran python3 setup.py install && \
     cd $HOME && \
     rm /etc/ld.so.cache && \
     ldconfig && \
