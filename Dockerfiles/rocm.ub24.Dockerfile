@@ -1,7 +1,8 @@
 # ROCm Dockerfile for Ubuntu 24
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
-# Revision: V1.0
+# Revision: V1.1
+# V1.1: add baseurl to amdgpuinst to new release (ubuntu)
 # V1.0 initial version for ROCm 6.2
 
 FROM ubuntu:24.04
@@ -105,7 +106,7 @@ RUN apt clean && \
     mkdir -p $HOME/downloads && \
     cd $HOME/downloads && \
     wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
-    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --ubuntudist noble && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl https://repo.radeon.com/amdgpu/${ROCM_REPO}/ubuntu --ubuntudist noble && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
     python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=noble && \
     cd $HOME && \
