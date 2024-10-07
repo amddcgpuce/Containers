@@ -123,7 +123,7 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
-    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --ubuntudist jammy && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl https://repo.radeon.com/amdgpu/${ROCM_REPO}/ubuntu --ubuntudist jammy && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
     python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
     cd $HOME && \
