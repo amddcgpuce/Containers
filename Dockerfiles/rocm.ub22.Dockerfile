@@ -1,7 +1,8 @@
 # ROCm Dockerfile
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): sid.srinivasan@amd.com, srinivasan.subramanian@amd.com
-# Revision: V1.11
+# Revision: V1.12
+# V1.12 Simply args, rocm_ver and repo baseurl
 # V1.11 Fix for ROCm 6.2, use amdgpuinstall to install mesa libs
 # V1.10 setup link to system libgomp.so
 # V1.9 add gdb, update-alternatives make gcc 12 default
@@ -20,26 +21,29 @@ MAINTAINER sid.srinivasan@amd.com
 MAINTAINER srinivasan.subramanian@amd.com 
 
 # Readme:
-# Docker build command for ROCm major release X.Y (Ex: 6.2)
-# docker build --no-cache --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
+# Docker build command for ROCm release version X.Y.Z (Ex: 6.2.0 for 6.2 release)
+# ROCM_VERSION="6.2.0" bash -c 'docker build --no-cache --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub22 -f rocm.ub22.Dockerfile `pwd` '
+# ROCM_VERSION="6.2.1" bash -c 'docker build --no-cache --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2.1/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2.1/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub22 -f rocm.ub22.Dockerfile `pwd` '
 # Podman build command (selinux disable)
-# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.0 --build-arg rocm_version=6.0.0 --build-arg rocm_lib_version=60000 --build-arg rocm_path=/opt/rocm-6.0.0 -t amddcgpuce/rocm:6.0.0-ub22 -f rocm.ub22.Dockerfile `pwd`
-# Docker build command for ROCm minor releases X.Y.Z (Ex: 6.1.3)
-# docker build --no-cache --build-arg rocm_repo=6.1.3 --build-arg rocm_version=6.1.3 --build-arg rocm_lib_version=60103 --build-arg rocm_path=/opt/rocm-6.1.3 -t amddcgpuce/rocm:6.1.3-ub22 -f rocm.ub22.Dockerfile `pwd`
+# ROCM_VERSION="6.2.0" bash -c 'podman build --no-cache --security-opt label=disable --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub22 -f rocm.ub22.Dockerfile `pwd`'
+# ROCM_VERSION="6.2.1" bash -c 'podman build --no-cache --security-opt label=disable --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2.1/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2.1/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub22 -f rocm.ub22.Dockerfile `pwd`'
 #
 
 
-ARG rocm_repo
-ENV ROCM_REPO=${rocm_repo}
-ARG rocm_path
-ENV ROCM_PATH=${rocm_path}
-ENV HIP_PATH=${rocm_path}
-ARG rocm_lib_version
-ENV ROCM_LIBPATCH_VERSION=${rocm_lib_version}
-ARG rocm_version
+ARG rocm_version="6.2.1"
 ENV ROCM_VERSION=${rocm_version}
+# Pointer to Ubuntu 22 ROCm packages repo
+ARG rocm_repo_baseurl="https://repo.radeon.com/rocm/apt/6.2.1"
+# Pointer to Ubuntu 22 AMDGPU packages repo
+ARG amdgpu_repo_baseurl="https://repo.radeon.com/amdgpu/6.2.1/ubuntu"
 
-#Lables
+# Set up ROCm environment variables
+ENV ROCM_PATH="/opt/rocm-"${rocm_version}
+ENV HIP_PATH=${ROCM_PATH}
+ENV ROCM_HOME=${ROCM_PATH}
+# Removed ROCM_LIBPATCH_VERSION env variable
+
+#Lables for Docker
 LABEL "com.amd.container.description"="Base ROCm Release Container for Development"
 LABEL "com.amd.container.baseos.type"="Ubuntu 22"
 LABEL "com.amd.container.rocm.version"=$rocm_version
@@ -123,9 +127,9 @@ RUN apt clean && \
     mkdir -p downloads && \
     cd downloads && \
     wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
-    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl https://repo.radeon.com/amdgpu/${ROCM_REPO}/ubuntu --ubuntudist jammy && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl ${amdgpu_repo_baseurl} --ubuntudist jammy && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
-    python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=jammy && \
+    python3 ./rocminstall.py --nokernel  --rev ${ROCM_VERSION} --baseurl ${rocm_repo_baseurl} --nomiopenkernels --ubuntudist=jammy && \
     cd $HOME && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* downloads && \

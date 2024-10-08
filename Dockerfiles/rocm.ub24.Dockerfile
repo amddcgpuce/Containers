@@ -1,7 +1,8 @@
 # ROCm Dockerfile for Ubuntu 24
 # Copyright (c) 2024 Advanced Micro Devices, Inc. All Rights Reserved.
 # Author(s): srinivasan.subramanian@amd.com
-# Revision: V1.1
+# Revision: V1.2
+# V1.2: simply args, rocm_version, rocm_repo_baseurl, amdgpu_repo_baseurl
 # V1.1: add baseurl to amdgpuinst to new release (ubuntu)
 # V1.0 initial version for ROCm 6.2
 
@@ -10,17 +11,19 @@ FROM ubuntu:24.04
 MAINTAINER srinivasan.subramanian@amd.com 
 
 # Readme: how to build container for 6.2 release
-# podman build --no-cache --security-opt label=disable --build-arg rocm_repo=6.2 --build-arg rocm_version=6.2.0 --build-arg rocm_lib_version=60200 --build-arg rocm_path=/opt/rocm-6.2.0 -t amddcgpuce/rocm:6.2.0-ub24 -f rocm.ub24.Dockerfile `pwd` 
+# ROCM_VERSION="6.2.0" bash -c 'podman build --no-cache --security-opt label=disable --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub24 -f rocm.ub24.Dockerfile `pwd`'
+# ROCM_VERSION="6.2.1" bash -c 'podman build --no-cache --security-opt label=disable --build-arg rocm_version=${ROCM_VERSION} --build-arg rocm_repo_baseurl=https://repo.radeon.com/rocm/apt/6.2.1/ --build-arg amdgpu_repo_baseurl=https://repo.radeon.com/amdgpu/6.2.1/ubuntu -t amddcgpuce/rocm:${ROCM_VERSION}-ub24 -f rocm.ub24.Dockerfile `pwd`'
 
-ARG rocm_repo
-ENV ROCM_REPO=${rocm_repo}
-ARG rocm_path
+ARG rocm_version="6.2.1"
+ENV ROCM_VERSION=${rocm_version}
+# Pointer to Ubuntu 22 ROCm packages repo
+ARG rocm_repo_baseurl="https://repo.radeon.com/rocm/apt/6.2.1"
+# Pointer to Ubuntu 22 AMDGPU packages repo
+ARG amdgpu_repo_baseurl="https://repo.radeon.com/amdgpu/6.2.1/ubuntu"
+
+# Set up ROCm environment variables
 ENV ROCM_PATH=${rocm_path}
 ENV HIP_PATH=${rocm_path}
-ARG rocm_lib_version
-ENV ROCM_LIBPATCH_VERSION=${rocm_lib_version}
-ARG rocm_version
-ENV ROCM_VERSION=${rocm_version}
 
 #Lables
 LABEL "com.amd.container.description"="Base ROCm Release Container for Development"
@@ -106,9 +109,9 @@ RUN apt clean && \
     mkdir -p $HOME/downloads && \
     cd $HOME/downloads && \
     wget -O amdgpuinst.py --no-cache --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/amdgpuinst.py && \
-    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl https://repo.radeon.com/amdgpu/${ROCM_REPO}/ubuntu --ubuntudist noble && \
+    python3 ./amdgpuinst.py --rev ${ROCM_VERSION} --nokernel --baseurl ${amdgpu_repo_baseurl} --ubuntudist noble && \
     wget -O rocminstall.py --no-check-certificate https://raw.githubusercontent.com/srinivamd/rocminstaller/master/rocminstall.py && \
-    python3 ./rocminstall.py --nokernel  --rev ${ROCM_REPO} --nomiopenkernels --ubuntudist=noble && \
+    python3 ./rocminstall.py --nokernel  --rev ${ROCM_VERSION} --baseurl ${rocm_repo_baseurl} --nomiopenkernels --ubuntudist=noble && \
     cd $HOME && \
     cd $HOME/downloads && \
     wget https://github.com/Kitware/CMake/releases/download/v3.30.2/cmake-3.30.2.tar.gz && \
